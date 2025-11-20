@@ -1,3 +1,93 @@
+# Backend — Auth (Login) & Users Documentation
+
+This document describes the Login (Auth) and Users modules, how to test them, and the environment variables relevant for authentication and lockout behavior.
+
+## Endpoints (Auth)
+
+- `POST /api/auth/login` — Login with `username` or `email` and `password`.
+  - Request JSON example:
+    ```json
+    { "username": "devadmin", "password": "12345678" }
+    ```
+  - Success response: `200` with `{ accessToken, refreshToken, user }`.
+  - Failure responses:
+    - `401` `{"message":"Credenciales inválidas"}` — wrong username/password.
+    - `401` `{"message":"Cuenta bloqueada temporalmente"}` — user locked due to repeated failed attempts.
+
+- `POST /api/auth/register` — Create new user (Register DTO).
+- `POST /api/auth/refresh` — Refresh tokens.
+- `GET /api/auth/me` — Get profile (requires auth).
+- `POST /api/auth/logout` — Logout (stateless here, just a log).
+- `PATCH /api/auth/change-password` — Change password (requires current password).
+
+## Endpoints (Users)
+
+- `GET /api/users` — List users.
+- `POST /api/users` — Create user (admin).
+- `GET /api/users/:id` — Get user.
+- `PATCH /api/users/:id` — Update user.
+- `PATCH /api/users/:id/password` — Update user password (admin or self).
+- `PATCH /api/users/:id/toggle-active` — Toggle active flag.
+
+## User entity notes
+
+- Database column `password` is mapped in the entity to the property `passwordHash` via TypeORM decorator.
+- Important fields used by auth logic:
+  - `passwordHash` (DB column `password`) — bcrypt hash stored.
+  - `failedLoginAttempts` (DB column `failed_login_attempts`) — integer counter.
+  - `lockedUntil` (DB column `locked_until`) — timestamp when lock expires (nullable).
+  - `lastLogin` (DB column `last_login`) — timestamp of last successful login.
+
+## Password hashing
+
+- Backend uses bcrypt with configurable salt rounds (default 12 in `auth.service.ts`).
+- When you need to update a user's password from scripts, generate a bcrypt hash with the same salt rounds and save it to the `password` column.
+
+## Lockout behavior
+
+- Configurable via environment variables (see below). Defaults used by service if env vars are not present:
+  - `MAX_FAILED_ATTEMPTS`: 5
+  - `LOCK_DURATION_MINUTES`: 30
+
+- On failed login the server increments `failedLoginAttempts`. When it reaches `MAX_FAILED_ATTEMPTS` the server sets `lockedUntil = now + LOCK_DURATION_MINUTES`.
+
+## Environment variables (backend)
+
+Recommended `.env` keys for the backend (add to your environment or `.env`):
+
+- `SRC_DATABASE_URL` — e.g. `postgres://postgres:password@localhost:5432/erp_carniceria`
+- `STAGING_DATABASE_URL` — staging DB URL if used.
+- `JWT_SECRET` — secret for signing JWT.
+- `JWT_EXPIRATION` — e.g. `15m`.
+- `JWT_REFRESH_EXPIRATION` — e.g. `7d`.
+- `MAX_FAILED_ATTEMPTS` — e.g. `10` (optional override).
+- `LOCK_DURATION_MINUTES` — e.g. `30`.
+
+## Quick test steps
+
+1. Ensure the backend is running (from `/backend`):
+   ```bash
+   npm run start:dev
+   ```
+
+2. Test login (single-line curl):
+   ```bash
+   curl -X POST http://localhost:3000/api/auth/login -H "Content-Type: application/json" -d '{"username":"devadmin","password":"12345678"}'
+   ```
+
+3. Expected successful response contains `accessToken`, `refreshToken`, and `user` object.
+
+4. If you receive `Cuenta bloqueada temporalmente`:
+   - Inspect DB: `SELECT failed_login_attempts, locked_until FROM users WHERE username='devadmin';`
+   - To immediately unlock (DB admin): `UPDATE users SET failed_login_attempts = 0, locked_until = NULL WHERE username = 'devadmin';`
+
+## Notes for maintainers
+
+- The code uses `User.passwordHash` property to read/write the DB `password` column; do not rename the DB column without updating the entity mapping.
+- Keep `bcrypt` salt rounds consistent across scripts and runtime.
+- Use environment variables to tune lockout policy in production.
+
+If you want, I can add these env keys to a root `/.env.example` or `backend/.env.example` file and commit it.
 <p align="center">
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
 </p>
