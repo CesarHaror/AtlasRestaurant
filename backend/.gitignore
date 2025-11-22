@@ -1,0 +1,10 @@
+# Ignore compiled artifacts for backend
+dist/
+node_modules/
+
+# Logs
+logs
+*.log
+
+# Environment
+.env
