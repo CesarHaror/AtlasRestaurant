@@ -19,7 +19,9 @@ export class CreateUserDto {
   @IsNotEmpty({ message: 'El username es requerido' })
   @MinLength(3, { message: 'El username debe tener al menos 3 caracteres' })
   @MaxLength(50, { message: 'El username no puede tener más de 50 caracteres' })
-  @Transform(({ value }) => value?.toLowerCase().trim())
+  @Transform(({ value }: { value: unknown }) =>
+    typeof value === 'string' ? value.toLowerCase().trim() : value,
+  )
   @Matches(/^[a-z0-9_-]+$/, {
     message:
       'El username solo puede contener letras, números, guiones y guiones bajos',
@@ -32,7 +34,9 @@ export class CreateUserDto {
   })
   @IsEmail({}, { message: 'Email inválido' })
   @IsNotEmpty({ message: 'El email es requerido' })
-  @Transform(({ value }) => value?.toLowerCase().trim())
+  @Transform(({ value }: { value: unknown }) =>
+    typeof value === 'string' ? value.toLowerCase().trim() : value,
+  )
   email: string;
 
   @ApiProperty({
@@ -52,14 +56,18 @@ export class CreateUserDto {
   @IsString()
   @IsNotEmpty({ message: 'El nombre es requerido' })
   @MaxLength(100)
-  @Transform(({ value }) => value?.trim())
+  @Transform(({ value }: { value: unknown }) =>
+    typeof value === 'string' ? value.trim() : value,
+  )
   firstName: string;
 
   @ApiProperty({ example: 'Doe', description: 'Apellido(s) del usuario' })
   @IsString()
   @IsNotEmpty({ message: 'El apellido es requerido' })
   @MaxLength(100)
-  @Transform(({ value }) => value?.trim())
+  @Transform(({ value }: { value: unknown }) =>
+    typeof value === 'string' ? value.trim() : value,
+  )
   lastName: string;
 
   @ApiProperty({
@@ -70,6 +78,9 @@ export class CreateUserDto {
   @IsOptional()
   @IsString()
   @Matches(/^[0-9]{10}$/, { message: 'El teléfono debe tener 10 dígitos' })
+  @Transform(({ value }: { value: unknown }) =>
+    typeof value === 'string' ? value.trim() : value,
+  )
   phone?: string;
 
   @ApiProperty({

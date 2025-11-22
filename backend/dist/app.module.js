@@ -18,6 +18,10 @@ const app_service_1 = require("./app.service");
 const redis_provider_1 = __importDefault(require("./redis.provider"));
 const auth_module_1 = require("./modules/auth/auth.module");
 const users_module_1 = require("./modules/users/users.module");
+const companies_module_1 = require("./modules/companies/companies.module");
+const branches_module_1 = require("./modules/branches/branches.module");
+const products_module_1 = require("./modules/products/products.module");
+const inventory_module_1 = require("./modules/inventory/inventory.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -37,6 +41,10 @@ exports.AppModule = AppModule = __decorate([
             }),
             auth_module_1.AuthModule,
             users_module_1.UsersModule,
+            companies_module_1.CompaniesModule,
+            branches_module_1.BranchesModule,
+            products_module_1.ProductsModule,
+            inventory_module_1.InventoryModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService, redis_provider_1.default],

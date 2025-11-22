@@ -86,7 +86,8 @@ let UsersService = class UsersService {
             user.roles = roles;
         }
         await this.userRepository.save(user);
-        const { passwordHash, ...userWithoutPassword } = user;
+        const userWithoutPassword = { ...user };
+        delete userWithoutPassword.passwordHash;
         return userWithoutPassword;
     }
     async findAll(page = 1, limit = 50, search) {

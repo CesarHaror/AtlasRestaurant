@@ -39,7 +39,7 @@ async function seed() {
     const dataSource = new typeorm_1.DataSource({
         type: 'postgres',
         host: process.env.DB_HOST || 'localhost',
-        port: parseInt(process.env.DB_PORT || '5432'),
+        port: parseInt(process.env.DB_PORT || '5432', 10),
         username: process.env.DB_USERNAME || 'postgres',
         password: process.env.DB_PASSWORD,
         database: process.env.DB_DATABASE || 'erp_carniceria',
@@ -49,7 +49,6 @@ async function seed() {
     await dataSource.initialize();
     console.log('✅ Conectado a la base de datos');
     try {
-        console.log('📝 Creando permisos...');
         const permissions = [
             { module: 'sales', action: 'create', description: 'Crear ventas' },
             { module: 'sales', action: 'read', description: 'Ver ventas' },
@@ -120,6 +119,7 @@ async function seed() {
                 description: 'Modificar configuración',
             },
         ];
+        console.log('📝 Creando permisos...');
         for (const perm of permissions) {
             await dataSource.query(`INSERT INTO permissions (module, action, description, created_at)
          VALUES ($1, $2, $3, NOW())
@@ -127,17 +127,19 @@ async function seed() {
         }
         console.log('✅ Permisos creados');
         console.log('📝 Creando roles...');
-        const [adminRole] = await dataSource.query(`INSERT INTO roles (name, description, is_system, created_at)
+        const adminRoleResult = await dataSource.query(`INSERT INTO roles (name, description, is_system, created_at)
        VALUES ($1, $2, $3, NOW())
        ON CONFLICT (name) DO UPDATE SET name = EXCLUDED.name
        RETURNING id`, ['Administrador', 'Acceso total al sistema', true]);
+        const adminRole = adminRoleResult[0];
         await dataSource.query(`INSERT INTO role_permissions (role_id, permission_id)
        SELECT $1, id FROM permissions
        ON CONFLICT DO NOTHING`, [adminRole.id]);
-        const [gerenteRole] = await dataSource.query(`INSERT INTO roles (name, description, is_system, created_at)
+        const gerenteRoleResult = await dataSource.query(`INSERT INTO roles (name, description, is_system, created_at)
        VALUES ($1, $2, $3, NOW())
        ON CONFLICT (name) DO UPDATE SET name = EXCLUDED.name
        RETURNING id`, ['Gerente', 'Gestión completa de sucursal', true]);
+        const gerenteRole = gerenteRoleResult[0];
         const gerentePerms = [
             'sales:create',
             'sales:read',
@@ -163,10 +165,11 @@ async function seed() {
          SELECT $1, id FROM permissions WHERE module = $2 AND action = $3
          ON CONFLICT DO NOTHING`, [gerenteRole.id, module, action]);
         }
-        const [cajeroRole] = await dataSource.query(`INSERT INTO roles (name, description, is_system, created_at)
+        const cajeroRoleResult = await dataSource.query(`INSERT INTO roles (name, description, is_system, created_at)
        VALUES ($1, $2, $3, NOW())
        ON CONFLICT (name) DO UPDATE SET name = EXCLUDED.name
        RETURNING id`, ['Cajero', 'Operación de punto de venta', true]);
+        const cajeroRole = cajeroRoleResult[0];
         const cajeroPerms = [
             'sales:create',
             'sales:read',
@@ -179,10 +182,11 @@ async function seed() {
          SELECT $1, id FROM permissions WHERE module = $2 AND action = $3
          ON CONFLICT DO NOTHING`, [cajeroRole.id, module, action]);
         }
-        const [almacenistaRole] = await dataSource.query(`INSERT INTO roles (name, description, is_system, created_at)
+        const almacenistaRoleResult = await dataSource.query(`INSERT INTO roles (name, description, is_system, created_at)
        VALUES ($1, $2, $3, NOW())
        ON CONFLICT (name) DO UPDATE SET name = EXCLUDED.name
        RETURNING id`, ['Almacenista', 'Gestión de inventario y recepción', true]);
+        const almacenistaRole = almacenistaRoleResult[0];
         const almacenistaPerms = [
             'inventory:read',
             'inventory:adjust',
@@ -198,31 +202,19 @@ async function seed() {
          ON CONFLICT DO NOTHING`, [almacenistaRole.id, module, action]);
         }
         console.log('✅ Roles creados');
-        console.log('📝 Creando usuario administrador...');
         const passwordHash = await bcrypt.hash('Admin123!', 12);
-        const [adminUser] = await dataSource.query(`INSERT INTO users (
+        const adminUserResult = await dataSource.query(`INSERT INTO users (
         username, email, password_hash, first_name, last_name,
         is_active, created_at, updated_at
       )
        VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())
        ON CONFLICT (username) DO UPDATE SET username = EXCLUDED.username
        RETURNING id`, ['admin', 'admin@carniceria.com', passwordHash, 'Admin', 'Sistema', true]);
+        const adminUser = adminUserResult[0];
         await dataSource.query(`INSERT INTO user_roles (user_id, role_id, company_id, branch_id)
        VALUES ($1, $2, NULL, NULL)
        ON CONFLICT DO NOTHING`, [adminUser.id, adminRole.id]);
         console.log('✅ Usuario administrador creado');
-        console.log('');
-        console.log('🎉 ¡Datos iniciales creados exitosamente!');
-        console.log('');
-        console.log('📋 Credenciales del administrador:');
-        console.log('   Username: admin');
-        console.log('   Password: Admin123!');
-        console.log('');
-        console.log('⚠️  IMPORTANTE: Cambie la contraseña después del primer login');
-    }
-    catch (error) {
-        console.error('❌ Error al crear datos iniciales:', error);
-        throw error;
     }
     finally {
         await dataSource.destroy();

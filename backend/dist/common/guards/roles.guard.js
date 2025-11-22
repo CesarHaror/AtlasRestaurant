@@ -23,8 +23,19 @@ let RolesGuard = class RolesGuard {
         if (!requiredRoles) {
             return true;
         }
-        const { user } = context.switchToHttp().getRequest();
-        return requiredRoles.some((role) => user?.roles?.some((userRole) => userRole.name === role));
+        const req = context.switchToHttp().getRequest();
+        const user = typeof req === 'object' && req !== null
+            ? req['user']
+            : undefined;
+        if (typeof user !== 'object' || user === null)
+            return false;
+        const roles = user['roles'];
+        if (!Array.isArray(roles))
+            return false;
+        return requiredRoles.some((role) => roles.some((r) => typeof r === 'object' &&
+            r !== null &&
+            'name' in r &&
+            r['name'] === role));
     }
 };
 exports.RolesGuard = RolesGuard;

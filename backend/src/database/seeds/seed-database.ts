@@ -1,4 +1,4 @@
-// backend/src/database/seeds/seed-database.ts
+/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access */
 import { DataSource } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 
@@ -8,11 +8,10 @@ import * as bcrypt from 'bcrypt';
  */
 
 async function seed() {
-  // Configurar conexión a la base de datos
   const dataSource = new DataSource({
     type: 'postgres',
     host: process.env.DB_HOST || 'localhost',
-    port: parseInt(process.env.DB_PORT || '5432'),
+    port: parseInt(process.env.DB_PORT || '5432', 10),
     username: process.env.DB_USERNAME || 'postgres',
     password: process.env.DB_PASSWORD,
     database: process.env.DB_DATABASE || 'erp_carniceria',
@@ -25,15 +24,11 @@ async function seed() {
 
   try {
     // 1. Crear permisos
-    console.log('📝 Creando permisos...');
     const permissions = [
-      // Ventas
       { module: 'sales', action: 'create', description: 'Crear ventas' },
       { module: 'sales', action: 'read', description: 'Ver ventas' },
       { module: 'sales', action: 'cancel', description: 'Cancelar ventas' },
       { module: 'sales', action: 'refund', description: 'Hacer devoluciones' },
-
-      // Inventario
       { module: 'inventory', action: 'read', description: 'Ver inventario' },
       {
         module: 'inventory',
@@ -45,8 +40,6 @@ async function seed() {
         action: 'transfer',
         description: 'Crear traslados',
       },
-
-      // Compras
       {
         module: 'purchases',
         action: 'create',
@@ -63,8 +56,6 @@ async function seed() {
         action: 'receive',
         description: 'Recibir mercancía',
       },
-
-      // Productos
       { module: 'products', action: 'create', description: 'Crear productos' },
       { module: 'products', action: 'read', description: 'Ver productos' },
       {
@@ -77,8 +68,6 @@ async function seed() {
         action: 'delete',
         description: 'Eliminar productos',
       },
-
-      // Reportes
       {
         module: 'reports',
         action: 'sales',
@@ -94,14 +83,10 @@ async function seed() {
         action: 'profitability',
         description: 'Ver reportes de utilidades',
       },
-
-      // Usuarios
       { module: 'users', action: 'create', description: 'Crear usuarios' },
       { module: 'users', action: 'read', description: 'Ver usuarios' },
       { module: 'users', action: 'update', description: 'Modificar usuarios' },
       { module: 'users', action: 'delete', description: 'Eliminar usuarios' },
-
-      // Configuración
       { module: 'settings', action: 'read', description: 'Ver configuración' },
       {
         module: 'settings',
@@ -110,6 +95,7 @@ async function seed() {
       },
     ];
 
+    console.log('📝 Creando permisos...');
     for (const perm of permissions) {
       await dataSource.query(
         `INSERT INTO permissions (module, action, description, created_at)
@@ -123,16 +109,15 @@ async function seed() {
     // 2. Crear roles
     console.log('📝 Creando roles...');
 
-    // Rol Administrador (todos los permisos)
-    const [adminRole] = await dataSource.query(
+    const adminRoleResult = await dataSource.query(
       `INSERT INTO roles (name, description, is_system, created_at)
        VALUES ($1, $2, $3, NOW())
        ON CONFLICT (name) DO UPDATE SET name = EXCLUDED.name
        RETURNING id`,
       ['Administrador', 'Acceso total al sistema', true],
     );
+    const adminRole = adminRoleResult[0];
 
-    // Asignar todos los permisos al administrador
     await dataSource.query(
       `INSERT INTO role_permissions (role_id, permission_id)
        SELECT $1, id FROM permissions
@@ -140,16 +125,15 @@ async function seed() {
       [adminRole.id],
     );
 
-    // Rol Gerente
-    const [gerenteRole] = await dataSource.query(
+    const gerenteRoleResult = await dataSource.query(
       `INSERT INTO roles (name, description, is_system, created_at)
        VALUES ($1, $2, $3, NOW())
        ON CONFLICT (name) DO UPDATE SET name = EXCLUDED.name
        RETURNING id`,
       ['Gerente', 'Gestión completa de sucursal', true],
     );
+    const gerenteRole = gerenteRoleResult[0];
 
-    // Permisos para gerente
     const gerentePerms = [
       'sales:create',
       'sales:read',
@@ -180,23 +164,21 @@ async function seed() {
       );
     }
 
-    // Rol Cajero
-    const [cajeroRole] = await dataSource.query(
+    const cajeroRoleResult = await dataSource.query(
       `INSERT INTO roles (name, description, is_system, created_at)
        VALUES ($1, $2, $3, NOW())
        ON CONFLICT (name) DO UPDATE SET name = EXCLUDED.name
        RETURNING id`,
       ['Cajero', 'Operación de punto de venta', true],
     );
+    const cajeroRole = cajeroRoleResult[0];
 
-    // Permisos para cajero
     const cajeroPerms = [
       'sales:create',
       'sales:read',
       'products:read',
       'inventory:read',
     ];
-
     for (const perm of cajeroPerms) {
       const [module, action] = perm.split(':');
       await dataSource.query(
@@ -207,16 +189,15 @@ async function seed() {
       );
     }
 
-    // Rol Almacenista
-    const [almacenistaRole] = await dataSource.query(
+    const almacenistaRoleResult = await dataSource.query(
       `INSERT INTO roles (name, description, is_system, created_at)
        VALUES ($1, $2, $3, NOW())
        ON CONFLICT (name) DO UPDATE SET name = EXCLUDED.name
        RETURNING id`,
       ['Almacenista', 'Gestión de inventario y recepción', true],
     );
+    const almacenistaRole = almacenistaRoleResult[0];
 
-    // Permisos para almacenista
     const almacenistaPerms = [
       'inventory:read',
       'inventory:adjust',
@@ -225,7 +206,6 @@ async function seed() {
       'purchases:receive',
       'products:read',
     ];
-
     for (const perm of almacenistaPerms) {
       const [module, action] = perm.split(':');
       await dataSource.query(
@@ -239,10 +219,9 @@ async function seed() {
     console.log('✅ Roles creados');
 
     // 3. Crear usuario administrador por defecto
-    console.log('📝 Creando usuario administrador...');
     const passwordHash = await bcrypt.hash('Admin123!', 12);
 
-    const [adminUser] = await dataSource.query(
+    const adminUserResult = await dataSource.query(
       `INSERT INTO users (
         username, email, password_hash, first_name, last_name,
         is_active, created_at, updated_at
@@ -252,8 +231,8 @@ async function seed() {
        RETURNING id`,
       ['admin', 'admin@carniceria.com', passwordHash, 'Admin', 'Sistema', true],
     );
+    const adminUser = adminUserResult[0];
 
-    // Asignar rol administrador
     await dataSource.query(
       `INSERT INTO user_roles (user_id, role_id, company_id, branch_id)
        VALUES ($1, $2, NULL, NULL)
@@ -262,25 +241,11 @@ async function seed() {
     );
 
     console.log('✅ Usuario administrador creado');
-    console.log('');
-    console.log('🎉 ¡Datos iniciales creados exitosamente!');
-    console.log('');
-    console.log('📋 Credenciales del administrador:');
-    console.log('   Username: admin');
-    console.log('   Password: Admin123!');
-    console.log('');
-    console.log(
-      '⚠️  IMPORTANTE: Cambie la contraseña después del primer login',
-    );
-  } catch (error) {
-    console.error('❌ Error al crear datos iniciales:', error);
-    throw error;
   } finally {
     await dataSource.destroy();
   }
 }
 
-// Ejecutar seed
 seed()
   .then(() => {
     console.log('✅ Proceso completado');

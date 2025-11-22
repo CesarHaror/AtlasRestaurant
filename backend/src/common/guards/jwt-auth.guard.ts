@@ -27,16 +27,22 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     return super.canActivate(context);
   }
 
-  handleRequest<TUser = any>(
-    err: any,
-    user: any,
-    info: any,
-    context: ExecutionContext,
-    status?: any,
+  handleRequest<TUser = unknown>(
+    err: unknown,
+    user: unknown,
+    _info: unknown,
+    _context: ExecutionContext,
+    _status?: unknown,
   ): TUser {
+    // mark unused params as used to satisfy linter
+    void _info;
+    void _context;
+    void _status;
+
     if (err || !user) {
-      throw err || new UnauthorizedException('No autorizado');
+      throw (err as Error) || new UnauthorizedException('No autorizado');
     }
-    return user;
+
+    return user as unknown as TUser;
   }
 }

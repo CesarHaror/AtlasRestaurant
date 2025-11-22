@@ -24,9 +24,9 @@ export declare class AuthService {
         message: string;
     }>;
     refreshToken(refreshToken: string): Promise<AuthResponse>;
-    logout(userId: string): Promise<{
+    logout(userId: string): {
         message: string;
-    }>;
+    };
     validateUser(userId: string): Promise<User | null>;
     private generateTokens;
     private generateAuthResponse;

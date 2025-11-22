@@ -38,17 +38,23 @@ let AuthController = class AuthController {
         return this.authService.refreshToken(refreshToken);
     }
     getProfile(user) {
-        const { passwordHash, failedLoginAttempts, lockedUntil, ...profile } = user;
+        const profile = { ...user };
+        delete profile.passwordHash;
+        delete profile.failedLoginAttempts;
+        delete profile.lockedUntil;
         return profile;
     }
     async changePassword(userId, changePasswordDto) {
         return this.authService.changePassword(userId, changePasswordDto);
     }
-    async logout(userId) {
+    logout(userId) {
         return this.authService.logout(userId);
     }
     me(user) {
-        const { passwordHash, failedLoginAttempts, lockedUntil, ...profile } = user;
+        const profile = { ...user };
+        delete profile.passwordHash;
+        delete profile.failedLoginAttempts;
+        delete profile.lockedUntil;
         return { user: profile };
     }
 };
@@ -213,7 +219,7 @@ __decorate([
     __param(0, (0, current_user_decorator_1.CurrentUser)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", Promise)
+    __metadata("design:returntype", void 0)
 ], AuthController.prototype, "logout", null);
 __decorate([
     (0, common_1.Get)('me'),

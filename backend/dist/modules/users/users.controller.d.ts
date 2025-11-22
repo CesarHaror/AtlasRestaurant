@@ -12,10 +12,10 @@ export declare class UsersController {
         totalPages: number;
     }>;
     create(createUserDto: CreateUserDto): Promise<import("./entities/user.entity").User>;
-    getProfile(user: any): Promise<import("./entities/user.entity").User>;
+    getProfile(user: unknown): Promise<import("./entities/user.entity").User>;
     findOne(id: string): Promise<import("./entities/user.entity").User>;
     update(id: string, updateUserDto: UpdateUserDto): Promise<import("./entities/user.entity").User>;
-    updatePassword(id: string, updatePasswordDto: UpdatePasswordDto, user: any): Promise<void>;
+    updatePassword(id: string, updatePasswordDto: UpdatePasswordDto, user: unknown): Promise<void>;
     toggleActive(id: string): Promise<import("./entities/user.entity").User>;
     remove(id: string): Promise<void>;
 }

@@ -30,7 +30,7 @@ __decorate([
     (0, class_validator_1.IsNotEmpty)({ message: 'El username es requerido' }),
     (0, class_validator_1.MinLength)(3, { message: 'El username debe tener al menos 3 caracteres' }),
     (0, class_validator_1.MaxLength)(50, { message: 'El username no puede tener más de 50 caracteres' }),
-    (0, class_transformer_1.Transform)(({ value }) => value?.toLowerCase().trim()),
+    (0, class_transformer_1.Transform)(({ value }) => typeof value === 'string' ? value.toLowerCase().trim() : value),
     (0, class_validator_1.Matches)(/^[a-z0-9_-]+$/, {
         message: 'El username solo puede contener letras, números, guiones y guiones bajos',
     }),
@@ -43,7 +43,7 @@ __decorate([
     }),
     (0, class_validator_1.IsEmail)({}, { message: 'Email inválido' }),
     (0, class_validator_1.IsNotEmpty)({ message: 'El email es requerido' }),
-    (0, class_transformer_1.Transform)(({ value }) => value?.toLowerCase().trim()),
+    (0, class_transformer_1.Transform)(({ value }) => typeof value === 'string' ? value.toLowerCase().trim() : value),
     __metadata("design:type", String)
 ], CreateUserDto.prototype, "email", void 0);
 __decorate([
@@ -64,7 +64,7 @@ __decorate([
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)({ message: 'El nombre es requerido' }),
     (0, class_validator_1.MaxLength)(100),
-    (0, class_transformer_1.Transform)(({ value }) => value?.trim()),
+    (0, class_transformer_1.Transform)(({ value }) => typeof value === 'string' ? value.trim() : value),
     __metadata("design:type", String)
 ], CreateUserDto.prototype, "firstName", void 0);
 __decorate([
@@ -72,7 +72,7 @@ __decorate([
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)({ message: 'El apellido es requerido' }),
     (0, class_validator_1.MaxLength)(100),
-    (0, class_transformer_1.Transform)(({ value }) => value?.trim()),
+    (0, class_transformer_1.Transform)(({ value }) => typeof value === 'string' ? value.trim() : value),
     __metadata("design:type", String)
 ], CreateUserDto.prototype, "lastName", void 0);
 __decorate([
@@ -84,6 +84,7 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.Matches)(/^[0-9]{10}$/, { message: 'El teléfono debe tener 10 dígitos' }),
+    (0, class_transformer_1.Transform)(({ value }) => typeof value === 'string' ? value.trim() : value),
     __metadata("design:type", String)
 ], CreateUserDto.prototype, "phone", void 0);
 __decorate([

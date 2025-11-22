@@ -139,8 +139,11 @@ export class AuthController {
   @ApiResponse({ status: 401, description: 'No autorizado' })
   getProfile(@CurrentUser() user: User) {
     // Eliminar campos sensibles
-    const { passwordHash, failedLoginAttempts, lockedUntil, ...profile } = user;
-    return profile;
+    const profile = { ...(user as unknown as Record<string, unknown>) };
+    delete profile.passwordHash;
+    delete profile.failedLoginAttempts;
+    delete profile.lockedUntil;
+    return profile as unknown;
   }
 
   @Patch('change-password')
@@ -179,7 +182,7 @@ export class AuthController {
       },
     },
   })
-  async logout(@CurrentUser('id') userId: string) {
+  logout(@CurrentUser('id') userId: string) {
     return this.authService.logout(userId);
   }
 
@@ -194,7 +197,10 @@ export class AuthController {
     description: 'Token válido',
   })
   me(@CurrentUser() user: User) {
-    const { passwordHash, failedLoginAttempts, lockedUntil, ...profile } = user;
+    const profile = { ...(user as unknown as Record<string, unknown>) };
+    delete profile.passwordHash;
+    delete profile.failedLoginAttempts;
+    delete profile.lockedUntil;
     return { user: profile };
   }
 }

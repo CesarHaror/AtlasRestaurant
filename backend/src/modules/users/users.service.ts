@@ -59,8 +59,9 @@ export class UsersService {
 
     await this.userRepository.save(user);
     // Excluir passwordHash en la respuesta
-    const { passwordHash, ...userWithoutPassword } = user;
-    return userWithoutPassword as User;
+    const userWithoutPassword = { ...(user as unknown as Record<string, unknown>) };
+    delete userWithoutPassword.passwordHash;
+    return userWithoutPassword as unknown as User;
   }
 
   async findAll(

@@ -4,7 +4,6 @@ import {
   MinLength,
   IsOptional,
   IsEmail,
-  Validate,
   ValidatorConstraint,
   ValidatorConstraintInterface,
   ValidationArguments,
@@ -13,11 +12,17 @@ import { ApiProperty } from '@nestjs/swagger';
 
 @ValidatorConstraint({ name: 'UsernameOrEmail', async: false })
 export class UsernameOrEmailConstraint implements ValidatorConstraintInterface {
-  validate(_: any, args: ValidationArguments) {
-    const obj = args.object as any;
-    return !!(obj.username || obj.email);
+  validate(_value: unknown, args: ValidationArguments) {
+    const obj = args.object as Record<string, unknown> | undefined;
+    if (!obj) return false;
+    const username = obj['username'];
+    const email = obj['email'];
+    const hasUsername =
+      typeof username === 'string' && username.trim().length > 0;
+    const hasEmail = typeof email === 'string' && email.trim().length > 0;
+    return hasUsername || hasEmail;
   }
-  defaultMessage(args: ValidationArguments) {
+  defaultMessage(): string {
     return 'Debe proporcionar nombre de usuario o email.';
   }
 }

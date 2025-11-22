@@ -13,11 +13,17 @@ exports.LoginDto = exports.UsernameOrEmailConstraint = void 0;
 const class_validator_1 = require("class-validator");
 const swagger_1 = require("@nestjs/swagger");
 let UsernameOrEmailConstraint = class UsernameOrEmailConstraint {
-    validate(_, args) {
+    validate(_value, args) {
         const obj = args.object;
-        return !!(obj.username || obj.email);
+        if (!obj)
+            return false;
+        const username = obj['username'];
+        const email = obj['email'];
+        const hasUsername = typeof username === 'string' && username.trim().length > 0;
+        const hasEmail = typeof email === 'string' && email.trim().length > 0;
+        return hasUsername || hasEmail;
     }
-    defaultMessage(args) {
+    defaultMessage() {
         return 'Debe proporcionar nombre de usuario o email.';
     }
 };

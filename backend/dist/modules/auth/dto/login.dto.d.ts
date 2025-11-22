@@ -1,7 +1,7 @@
 import { ValidatorConstraintInterface, ValidationArguments } from 'class-validator';
 export declare class UsernameOrEmailConstraint implements ValidatorConstraintInterface {
-    validate(_: any, args: ValidationArguments): boolean;
-    defaultMessage(args: ValidationArguments): string;
+    validate(_value: unknown, args: ValidationArguments): boolean;
+    defaultMessage(): string;
 }
 export declare class LoginDto {
     username?: string;

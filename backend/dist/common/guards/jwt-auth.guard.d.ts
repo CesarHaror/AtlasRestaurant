@@ -6,6 +6,6 @@ export declare class JwtAuthGuard extends JwtAuthGuard_base {
     private reflector;
     constructor(reflector: Reflector);
     canActivate(context: ExecutionContext): boolean | Promise<boolean> | import("rxjs").Observable<boolean>;
-    handleRequest<TUser = any>(err: any, user: any, info: any, context: ExecutionContext, status?: any): TUser;
+    handleRequest<TUser = unknown>(err: unknown, user: unknown, _info: unknown, _context: ExecutionContext, _status?: unknown): TUser;
 }
 export {};

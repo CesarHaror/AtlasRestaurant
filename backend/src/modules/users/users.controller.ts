@@ -1,4 +1,5 @@
-import { Controller,
+import {
+  Controller,
   Get,
   Post,
   Body,
@@ -8,7 +9,7 @@ import { Controller,
   Delete,
   UseGuards,
   UnauthorizedException,
- } from '@nestjs/common';
+} from '@nestjs/common';
 import { ParseIdPipe } from '../../common/pipes/parse-id.pipe';
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
@@ -41,8 +42,9 @@ export class UsersController {
   }
 
   @Get('profile')
-  getProfile(@CurrentUser() user: any) {
-    return this.usersService.getProfile(user.id);
+  getProfile(@CurrentUser() user: unknown) {
+    const id = (user as Record<string, unknown>)['id'];
+    return this.usersService.getProfile(String(id));
   }
 
   @Get(':id')
@@ -64,12 +66,20 @@ export class UsersController {
   updatePassword(
     @Param('id', new ParseIdPipe({ version: '4' })) id: string,
     @Body() updatePasswordDto: UpdatePasswordDto,
-    @CurrentUser() user: any,
+    @CurrentUser() user: unknown,
   ) {
-    if (
-      user.id !== id &&
-      !user.roles?.some((r) => r.name === 'Administrador')
-    ) {
+    const userId = (user as Record<string, unknown>)['id'];
+    const roles = (user as Record<string, unknown>)['roles'];
+    const isAdmin = Array.isArray(roles)
+      ? roles.some(
+          (r) =>
+            typeof r === 'object' &&
+            r !== null &&
+            (r as Record<string, unknown>)['name'] === 'Administrador',
+        )
+      : false;
+
+    if (String(userId) !== id && !isAdmin) {
       throw new UnauthorizedException(
         'No autorizado para cambiar la contraseña de otro usuario',
       );

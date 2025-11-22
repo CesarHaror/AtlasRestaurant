@@ -45,8 +45,10 @@ export class AuthService {
     const maxAttempts = this.configService.get<number>('MAX_FAILED_ATTEMPTS');
     const lockMinutes = this.configService.get<number>('LOCK_DURATION_MINUTES');
 
-    this.MAX_FAILED_ATTEMPTS = Number.isInteger(maxAttempts) && maxAttempts! > 0 ? maxAttempts! : 5;
-    this.LOCK_DURATION_MINUTES = Number.isInteger(lockMinutes) && lockMinutes! > 0 ? lockMinutes! : 30;
+    this.MAX_FAILED_ATTEMPTS =
+      Number.isInteger(maxAttempts) && maxAttempts! > 0 ? maxAttempts! : 5;
+    this.LOCK_DURATION_MINUTES =
+      Number.isInteger(lockMinutes) && lockMinutes! > 0 ? lockMinutes! : 30;
   }
 
   async register(registerDto: RegisterDto): Promise<AuthResponse> {
@@ -85,11 +87,10 @@ export class AuthService {
       throw new BadRequestException('Nombre de usuario o email es requerido');
     }
 
-    const whereConditions = [] as any[];
+    const whereConditions: Array<Partial<User>> = [];
     if (loginDto.username)
       whereConditions.push({ username: loginDto.username });
-    if (loginDto.email)
-      whereConditions.push({ email: loginDto.email });
+    if (loginDto.email) whereConditions.push({ email: loginDto.email });
 
     const user = await this.userRepository.findOne({
       where: whereConditions,
@@ -127,7 +128,7 @@ export class AuthService {
     }
 
     user.failedLoginAttempts = 0;
-    user.lockedUntil = undefined as any;
+    user.lockedUntil = undefined;
     user.lastLogin = new Date();
 
     await this.userRepository.save(user);
@@ -169,10 +170,20 @@ export class AuthService {
         secret:
           this.configService.get<string>('JWT_SECRET') ||
           'tu_secreto_development',
-      });
+      }) as unknown;
+
+      if (
+        typeof payload !== 'object' ||
+        payload === null ||
+        !('sub' in payload)
+      ) {
+        throw new UnauthorizedException('Token inválido o expirado');
+      }
+
+      const userId = String((payload as Record<string, unknown>)['sub']);
 
       const user = await this.userRepository.findOne({
-        where: { id: payload.sub },
+        where: { id: userId },
         relations: ['roles', 'roles.permissions'],
       });
 
@@ -181,12 +192,12 @@ export class AuthService {
       }
 
       return this.generateAuthResponse(user);
-    } catch (error) {
+    } catch {
       throw new UnauthorizedException('Token inválido o expirado');
     }
   }
 
-  async logout(userId: string): Promise<{ message: string }> {
+  logout(userId: string): { message: string } {
     this.logger.log(`Usuario ${userId} ha cerrado sesión`);
     return { message: 'Sesión cerrada exitosamente' };
   }

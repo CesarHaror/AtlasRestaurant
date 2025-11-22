@@ -33,10 +33,10 @@ async function bootstrap() {
         .build();
     const document = swagger_1.SwaggerModule.createDocument(app, config);
     swagger_1.SwaggerModule.setup('api/docs', app, document);
-    const port = configService.get('PORT', 3000);
-    await app.listen(port);
-    logger.log(`🚀 Aplicación corriendo en: http://localhost:${port}`);
-    logger.log(`📚 Documentación en: http://localhost:${port}/api/docs`);
+    const portNumber = Number(configService.get('PORT') ?? 3000);
+    await app.listen(portNumber);
+    logger.log(`🚀 Aplicación corriendo en: http://localhost:${portNumber}`);
+    logger.log(`📚 Documentación en: http://localhost:${portNumber}/api/docs`);
 }
-bootstrap();
+void bootstrap();
 //# sourceMappingURL=main.js.map

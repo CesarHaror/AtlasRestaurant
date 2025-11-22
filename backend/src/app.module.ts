@@ -6,6 +6,10 @@ import { AppService } from './app.service';
 import RedisProvider from './redis.provider';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
+import { CompaniesModule } from './modules/companies/companies.module';
+import { BranchesModule } from './modules/branches/branches.module';
+import { ProductsModule } from './modules/products/products.module';
+import { InventoryModule } from './modules/inventory/inventory.module';
 
 @Module({
   imports: [
@@ -22,6 +26,10 @@ import { UsersModule } from './modules/users/users.module';
     }),
     AuthModule,
     UsersModule,
+    CompaniesModule,
+    BranchesModule,
+    ProductsModule,
+    InventoryModule,
   ],
   controllers: [AppController],
   providers: [AppService, RedisProvider],

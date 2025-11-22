@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe, Logger } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
@@ -45,11 +46,11 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);
 
-  const port = configService.get('PORT', 3000);
-  await app.listen(port);
+  const portNumber = Number(configService.get<number>('PORT') ?? 3000);
+  await app.listen(portNumber);
 
-  logger.log(`🚀 Aplicación corriendo en: http://localhost:${port}`);
-  logger.log(`📚 Documentación en: http://localhost:${port}/api/docs`);
+  logger.log(`🚀 Aplicación corriendo en: http://localhost:${portNumber}`);
+  logger.log(`📚 Documentación en: http://localhost:${portNumber}/api/docs`);
 }
 
-bootstrap();
+void bootstrap();

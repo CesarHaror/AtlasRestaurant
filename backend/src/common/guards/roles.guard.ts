@@ -17,10 +17,26 @@ export class RolesGuard implements CanActivate {
       return true;
     }
 
-    const { user } = context.switchToHttp().getRequest();
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const req = context.switchToHttp().getRequest();
+    const user =
+      typeof req === 'object' && req !== null
+        ? (req as Record<string, unknown>)['user']
+        : undefined;
+
+    if (typeof user !== 'object' || user === null) return false;
+
+    const roles = (user as Record<string, unknown>)['roles'];
+    if (!Array.isArray(roles)) return false;
 
     return requiredRoles.some((role) =>
-      user?.roles?.some((userRole: any) => userRole.name === role),
+      roles.some(
+        (r) =>
+          typeof r === 'object' &&
+          r !== null &&
+          'name' in (r as Record<string, unknown>) &&
+          (r as Record<string, unknown>)['name'] === role,
+      ),
     );
   }
 }

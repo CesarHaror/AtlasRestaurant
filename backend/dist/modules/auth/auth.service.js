@@ -73,8 +73,10 @@ let AuthService = AuthService_1 = class AuthService {
     onModuleInit() {
         const maxAttempts = this.configService.get('MAX_FAILED_ATTEMPTS');
         const lockMinutes = this.configService.get('LOCK_DURATION_MINUTES');
-        this.MAX_FAILED_ATTEMPTS = Number.isInteger(maxAttempts) && maxAttempts > 0 ? maxAttempts : 5;
-        this.LOCK_DURATION_MINUTES = Number.isInteger(lockMinutes) && lockMinutes > 0 ? lockMinutes : 30;
+        this.MAX_FAILED_ATTEMPTS =
+            Number.isInteger(maxAttempts) && maxAttempts > 0 ? maxAttempts : 5;
+        this.LOCK_DURATION_MINUTES =
+            Number.isInteger(lockMinutes) && lockMinutes > 0 ? lockMinutes : 30;
     }
     async register(registerDto) {
         const existingUser = await this.userRepository.findOne({
@@ -152,8 +154,14 @@ let AuthService = AuthService_1 = class AuthService {
                 secret: this.configService.get('JWT_SECRET') ||
                     'tu_secreto_development',
             });
+            if (typeof payload !== 'object' ||
+                payload === null ||
+                !('sub' in payload)) {
+                throw new common_1.UnauthorizedException('Token inválido o expirado');
+            }
+            const userId = String(payload['sub']);
             const user = await this.userRepository.findOne({
-                where: { id: payload.sub },
+                where: { id: userId },
                 relations: ['roles', 'roles.permissions'],
             });
             if (!user) {
@@ -161,11 +169,11 @@ let AuthService = AuthService_1 = class AuthService {
             }
             return this.generateAuthResponse(user);
         }
-        catch (error) {
+        catch {
             throw new common_1.UnauthorizedException('Token inválido o expirado');
         }
     }
-    async logout(userId) {
+    logout(userId) {
         this.logger.log(`Usuario ${userId} ha cerrado sesión`);
         return { message: 'Sesión cerrada exitosamente' };
     }
