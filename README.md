@@ -53,12 +53,12 @@ cp -r /ruta/a/tu/backend ./backend
 cp .env.example .env
 ```
 
-Editar `.env` con tus valores (cambiar contraseñas, secretos, etc):
+Editar `.env` con tus valores (usa claves seguras reales, aquí solo placeholders):
 
 ```env
-DB_PASSWORD=mi_password_super_seguro
-JWT_SECRET=mi_secreto_jwt_minimo_64_caracteres_aleatorios
-JWT_REFRESH_SECRET=otro_secreto_64_caracteres_aleatorios
+DB_PASSWORD=CHANGE_ME_SECURE_DB_PASSWORD
+JWT_SECRET=CHANGE_ME_BASE64_64B_SECRET
+JWT_REFRESH_SECRET=CHANGE_ME_BASE64_64B_REFRESH_SECRET
 ```
 
 ### 3. Asegurar que backend tenga Dockerfile

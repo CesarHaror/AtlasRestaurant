@@ -5,9 +5,9 @@ This document describes the Login (Auth) and Users modules, how to test them, an
 ## Endpoints (Auth)
 
 - `POST /api/auth/login` — Login with `username` or `email` and `password`.
-  - Request JSON example:
+  - Request JSON example (usa una contraseña real segura, aquí placeholder):
     ```json
-    { "username": "devadmin", "password": "12345678" }
+    { "username": "devadmin", "password": "YOUR_SECURE_PASSWORD" }
     ```
   - Success response: `200` with `{ accessToken, refreshToken, user }`.
   - Failure responses:
@@ -70,10 +70,10 @@ Recommended `.env` keys for the backend (add to your environment or `.env`):
    npm run start:dev
    ```
 
-2. Test login (single-line curl):
-   ```bash
-   curl -X POST http://localhost:3000/api/auth/login -H "Content-Type: application/json" -d '{"username":"devadmin","password":"12345678"}'
-   ```
+2. Test login (single-line curl con placeholder de contraseña):
+  ```bash
+  curl -X POST http://localhost:3000/api/auth/login -H "Content-Type: application/json" -d '{"username":"devadmin","password":"YOUR_SECURE_PASSWORD"}'
+  ```
 
 3. Expected successful response contains `accessToken`, `refreshToken`, and `user` object.
 
@@ -88,7 +88,7 @@ Recommended `.env` keys for the backend (add to your environment or `.env`):
 ```bash
 curl -X POST http://localhost:3000/api/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"username":"devadmin","password":"12345678"}'
+  -d '{"username":"devadmin","password":"YOUR_SECURE_PASSWORD"}'
 ```
 
 - Comando para validar endpoint protegido `profile` usando el `accessToken` devuelto:
