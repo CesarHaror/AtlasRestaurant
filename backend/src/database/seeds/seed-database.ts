@@ -218,8 +218,9 @@ async function seed() {
 
     console.log('✅ Roles creados');
 
-    // 3. Crear usuario administrador por defecto
-    const passwordHash = await bcrypt.hash('Admin123!', 12);
+    // 3. Crear usuario administrador por defecto (password desde env o placeholder)
+    const adminPlain = process.env.ADMIN_SEED_PASSWORD || 'ChangeMeAdmin!123';
+    const passwordHash = await bcrypt.hash(adminPlain, 12);
 
     const adminUserResult = await dataSource.query(
       `INSERT INTO users (
@@ -241,6 +242,7 @@ async function seed() {
     );
 
     console.log('✅ Usuario administrador creado');
+    console.log('⚠️  Password temporal admin (cámbiala inmediatamente):', adminPlain);
   } finally {
     await dataSource.destroy();
   }
