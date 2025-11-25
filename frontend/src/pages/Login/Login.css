@@ -1,0 +1,6 @@
+body,html,#root { height:100%; }
+.login-wrapper { min-height:100vh; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg,#0f2027,#203a43,#2c5364); padding:24px; }
+.login-card { width:100%; max-width:380px; background:#ffffffee; padding:32px 28px; border-radius:16px; box-shadow:0 8px 32px rgba(0,0,0,0.25); backdrop-filter: blur(4px); }
+.login-title { text-align:center; font-size:24px; font-weight:600; margin-bottom:8px; }
+.login-subtitle { text-align:center; color:#555; margin-bottom:24px; }
+.footer-hint { text-align:center; margin-top:16px; font-size:12px; color:#666; }
