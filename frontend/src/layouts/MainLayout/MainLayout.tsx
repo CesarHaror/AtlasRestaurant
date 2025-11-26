@@ -1,5 +1,5 @@
 import { Layout, Menu, Dropdown } from 'antd';
-import { LogoutOutlined, DashboardOutlined } from '@ant-design/icons';
+import { LogoutOutlined, DashboardOutlined, ShoppingOutlined } from '@ant-design/icons';
 import { useAuthStore } from '../../store/authStore';
 import './MainLayout.css';
 import { useNavigate } from 'react-router-dom';
@@ -19,6 +19,12 @@ export default function MainLayout({ children }: Props) {
       icon: <DashboardOutlined />, 
       label: 'Dashboard',
       onClick: () => navigate('/dashboard'),
+    },
+    {
+      key: 'products',
+      icon: <ShoppingOutlined />,
+      label: 'Productos',
+      onClick: () => navigate('/products'),
     },
   ];
 

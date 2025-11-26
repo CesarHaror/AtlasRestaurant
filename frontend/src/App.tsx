@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import ProtectedRoute from './routes/ProtectedRoute';
 import LoginPage from './pages/Login/Login';
 import DashboardPage from './pages/Dashboard/Dashboard';
+import ProductList from './pages/Products/ProductList';
 
 export default function App() {
   return (
@@ -11,6 +12,7 @@ export default function App() {
         <Route element={<ProtectedRoute />}>
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/products" element={<ProductList />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
