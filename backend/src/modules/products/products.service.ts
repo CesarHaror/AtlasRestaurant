@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, MoreThan } from 'typeorm';
 import { Product } from './entities/product.entity';
@@ -16,19 +16,58 @@ export class ProductsService {
     private inventoryRepo: Repository<Inventory>,
   ) {}
 
-  async create(dto: CreateProductDto): Promise<Product> {
+  async create(dto: CreateProductDto, companyId: number): Promise<Product> {
+    const toStr = (v: any) =>
+      typeof v !== 'undefined' && v !== null ? String(v) : undefined;
+    
+    // Check for duplicate SKU
+    if (dto.sku) {
+      const existing = await this.repo.findOne({ where: { sku: dto.sku } });
+      if (existing) {
+        throw new ConflictException(`El SKU '${dto.sku}' ya existe`);
+      }
+    }
+    
     const createData: DeepPartial<Product> = {
       ...dto,
-      price: typeof dto.price !== 'undefined' ? String(dto.price) : undefined,
+      companyId,
+      price: toStr(dto.price),
+      standardCost: toStr(dto.standardCost),
+      minStockAlert: toStr(dto.minStockAlert),
+      maxStock: toStr(dto.maxStock),
+      minTemperature: toStr(dto.minTemperature),
+      maxTemperature: toStr(dto.maxTemperature),
     } as DeepPartial<Product>;
     const p = this.repo.create(createData);
     const saved = (await this.repo.save(p)) as unknown as Product;
     return saved;
   }
 
-  async findAll(page = 1, limit = 50) {
-    const skip = (page - 1) * limit;
-    const [data, total] = await this.repo.findAndCount({ skip, take: limit });
+  async findAll(
+    page = 1,
+    limit = 50,
+    companyId?: number,
+    filters?: { search?: string; categoryId?: number; isActive?: boolean; showInPos?: boolean },
+  ) {
+    const qb = this.repo.createQueryBuilder('p');
+    qb.where('p.company_id = :companyId', { companyId });
+    if (filters?.search) {
+      qb.andWhere(
+        '(p.name ILIKE :q OR p.sku ILIKE :q OR p.barcode ILIKE :q)',
+        { q: `%${filters.search}%` },
+      );
+    }
+    if (typeof filters?.categoryId !== 'undefined') {
+      qb.andWhere('p.category_id = :categoryId', { categoryId: filters.categoryId });
+    }
+    if (typeof filters?.isActive !== 'undefined') {
+      qb.andWhere('p.is_active = :isActive', { isActive: filters.isActive });
+    }
+    if (typeof filters?.showInPos !== 'undefined') {
+      qb.andWhere('p.show_in_pos = :showInPos', { showInPos: filters.showInPos });
+    }
+    qb.skip((page - 1) * limit).take(limit);
+    const [data, total] = await qb.getManyAndCount();
     return { data, total, page, totalPages: Math.ceil(total / limit) };
   }
 
@@ -40,7 +79,33 @@ export class ProductsService {
 
   async update(id: number, dto: UpdateProductDto): Promise<Product> {
     const p = await this.findOne(id);
-    if (typeof dto.price !== 'undefined') p.price = String(dto.price as any);
+    
+    // Check for duplicate SKU if updating
+    if (dto.sku && dto.sku !== p.sku) {
+      const existing = await this.repo.findOne({ where: { sku: dto.sku } });
+      if (existing) {
+        throw new ConflictException(`El SKU '${dto.sku}' ya existe`);
+      }
+    }
+    
+    const toStr = (v: any) =>
+      typeof v !== 'undefined' && v !== null ? String(v) : undefined;
+    if (typeof dto.price !== 'undefined') p.price = toStr(dto.price) as any;
+    if (typeof dto.standardCost !== 'undefined')
+      p.standardCost = toStr(dto.standardCost) as any;
+    if (typeof dto.minStockAlert !== 'undefined')
+      p.minStockAlert = toStr(dto.minStockAlert) as any;
+    if (typeof dto.maxStock !== 'undefined')
+      p.maxStock = toStr(dto.maxStock) as any;
+    if (typeof dto.minTemperature !== 'undefined')
+      p.minTemperature = toStr(dto.minTemperature) as any;
+    if (typeof dto.maxTemperature !== 'undefined')
+      p.maxTemperature = toStr(dto.maxTemperature) as any;
+    
+    // Explicitly handle image fields
+    if (typeof dto.imageUrl !== 'undefined') p.imageUrl = dto.imageUrl;
+    if (typeof dto.thumbnailUrl !== 'undefined') p.thumbnailUrl = dto.thumbnailUrl;
+    
     Object.assign(p, dto);
     const saved = (await this.repo.save(p)) as unknown as Product;
     return saved;
@@ -55,6 +120,13 @@ export class ProductsService {
   async toggleActive(id: number): Promise<Product> {
     const p = await this.findOne(id);
     p.isActive = !p.isActive;
+    const saved = (await this.repo.save(p)) as unknown as Product;
+    return saved;
+  }
+
+  async togglePosVisibility(id: number): Promise<Product> {
+    const p = await this.findOne(id);
+    p.showInPos = !p.showInPos;
     const saved = (await this.repo.save(p)) as unknown as Product;
     return saved;
   }

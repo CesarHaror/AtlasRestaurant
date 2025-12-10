@@ -11,7 +11,6 @@ import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
 import { User } from '../users/entities/user.entity';
-import { Role } from '../users/entities/role.entity';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
@@ -21,7 +20,7 @@ interface JwtPayload {
   sub: string;
   username: string;
   email: string;
-  roles: string[];
+  roleId?: string;
 }
 
 @Injectable()
@@ -34,8 +33,6 @@ export class AuthService {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
-    @InjectRepository(Role)
-    private roleRepository: Repository<Role>,
     private jwtService: JwtService,
     private configService: ConfigService,
   ) {}
@@ -94,7 +91,7 @@ export class AuthService {
 
     const user = await this.userRepository.findOne({
       where: whereConditions,
-      relations: ['roles', 'roles.permissions'],
+      relations: ['role'],
     });
 
     if (!user) {
@@ -184,7 +181,7 @@ export class AuthService {
 
       const user = await this.userRepository.findOne({
         where: { id: userId },
-        relations: ['roles', 'roles.permissions'],
+        relations: ['role'],
       });
 
       if (!user) {
@@ -205,7 +202,7 @@ export class AuthService {
   async validateUser(userId: string): Promise<User | null> {
     return this.userRepository.findOne({
       where: { id: userId },
-      relations: ['roles', 'roles.permissions'],
+      relations: ['role', 'role.permissions'],
     });
   }
 
@@ -214,7 +211,7 @@ export class AuthService {
       sub: user.id,
       username: user.username,
       email: user.email,
-      roles: user.roles?.map((r) => r.name) || [],
+      roleId: user.roleId,
     };
 
     const accessToken = this.jwtService.sign(payload, {
@@ -240,7 +237,8 @@ export class AuthService {
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
-        roles: user.roles?.map((r) => ({ id: r.id, name: r.name })) || [],
+        branchId: user.branchId,
+        role: user.role ? { id: user.role.id, name: user.role.name } : null,
       },
     };
   }

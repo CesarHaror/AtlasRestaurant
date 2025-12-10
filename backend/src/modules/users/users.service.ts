@@ -5,10 +5,9 @@ import {
   ConflictException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, In } from 'typeorm';
+import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { User } from './entities/user.entity';
-import { Role } from './entities/role.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
@@ -18,8 +17,6 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
-    @InjectRepository(Role)
-    private roleRepository: Repository<Role>,
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
@@ -49,12 +46,9 @@ export class UsersService {
       passwordHash: hashedPassword,
     });
 
-    // Asignar roles si se proporcionan
-    if (createUserDto.roleIds && createUserDto.roleIds.length > 0) {
-      const roles = await this.roleRepository.find({
-        where: { id: In(createUserDto.roleIds) },
-      });
-      user.roles = roles;
+    // Asignar rol si se proporciona
+    if (createUserDto.roleId) {
+      user.roleId = createUserDto.roleId;
     }
 
     await this.userRepository.save(user);
@@ -77,7 +71,8 @@ export class UsersService {
     const skip = (page - 1) * limit;
     const query = this.userRepository
       .createQueryBuilder('user')
-      .leftJoinAndSelect('user.roles', 'role');
+      .leftJoinAndSelect('user.role', 'role')
+      .leftJoinAndSelect('role.permissions', 'permission');
     if (search) {
       query.andWhere(
         'user.firstName ILIKE :search OR user.lastName ILIKE :search OR user.email ILIKE :search OR user.username ILIKE :search',
@@ -96,7 +91,7 @@ export class UsersService {
   async findOne(id: string): Promise<User> {
     const user = await this.userRepository.findOne({
       where: { id },
-      relations: ['roles'],
+      relations: ['role', 'role.permissions'],
     });
     if (!user) throw new NotFoundException('Usuario no encontrado');
     return user;
@@ -105,14 +100,14 @@ export class UsersService {
   async findByUsername(username: string): Promise<User | null> {
     return this.userRepository.findOne({
       where: { username },
-      relations: ['roles'],
+      relations: ['role', 'role.permissions'],
     });
   }
 
   async findByEmail(email: string): Promise<User | null> {
     return this.userRepository.findOne({
       where: { email },
-      relations: ['roles'],
+      relations: ['role', 'role.permissions'],
     });
   }
 

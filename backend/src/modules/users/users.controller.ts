@@ -20,13 +20,12 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
 
-@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
-  @Roles('Administrador', 'Gerente')
+  @UseGuards(JwtAuthGuard)
   findAll(
     @Query('page') page?: number,
     @Query('limit') limit?: number,
@@ -36,7 +35,8 @@ export class UsersController {
   }
 
   @Post()
-  @Roles('Administrador', 'Gerente')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('Admin')
   create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
   }
@@ -48,13 +48,15 @@ export class UsersController {
   }
 
   @Get(':id')
-  @Roles('Administrador', 'Gerente')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('Admin')
   findOne(@Param('id', new ParseIdPipe({ version: '4' })) id: string) {
     return this.usersService.findOne(id);
   }
 
   @Patch(':id')
-  @Roles('Administrador', 'Gerente')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('Admin')
   update(
     @Param('id', new ParseIdPipe({ version: '4' })) id: string,
     @Body() updateUserDto: UpdateUserDto,
@@ -63,21 +65,32 @@ export class UsersController {
   }
 
   @Patch(':id/password')
+  @UseGuards(JwtAuthGuard)
   updatePassword(
     @Param('id', new ParseIdPipe({ version: '4' })) id: string,
     @Body() updatePasswordDto: UpdatePasswordDto,
     @CurrentUser() user: unknown,
   ) {
     const userId = (user as Record<string, unknown>)['id'];
-    const roles = (user as Record<string, unknown>)['roles'];
-    const isAdmin = Array.isArray(roles)
-      ? roles.some(
-          (r) =>
-            typeof r === 'object' &&
-            r !== null &&
-            (r as Record<string, unknown>)['name'] === 'Administrador',
-        )
-      : false;
+    
+    // Check for single role (new structure)
+    const role = (user as Record<string, unknown>)['role'];
+    let isAdmin = false;
+    
+    if (typeof role === 'object' && role !== null && 'name' in (role as Record<string, unknown>)) {
+      isAdmin = (role as Record<string, unknown>)['name'] === 'Admin';
+    } else {
+      // Fallback to roles array (old structure)
+      const roles = (user as Record<string, unknown>)['roles'];
+      isAdmin = Array.isArray(roles)
+        ? roles.some(
+            (r) =>
+              typeof r === 'object' &&
+              r !== null &&
+              (r as Record<string, unknown>)['name'] === 'Admin',
+          )
+        : false;
+    }
 
     if (String(userId) !== id && !isAdmin) {
       throw new UnauthorizedException(
@@ -88,13 +101,15 @@ export class UsersController {
   }
 
   @Patch(':id/toggle-active')
-  @Roles('Administrador')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('Admin')
   toggleActive(@Param('id', new ParseIdPipe({ version: '4' })) id: string) {
     return this.usersService.toggleActive(id);
   }
 
   @Delete(':id')
-  @Roles('Administrador')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('Admin')
   remove(@Param('id', new ParseIdPipe({ version: '4' })) id: string) {
     return this.usersService.remove(id);
   }

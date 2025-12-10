@@ -6,10 +6,9 @@ import {
   Index,
   CreateDateColumn,
   UpdateDateColumn,
-  ManyToMany,
-  JoinTable,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
-import { Role } from './role.entity';
 
 @Entity('users')
 export class User {
@@ -57,11 +56,18 @@ export class User {
     return `${this.firstName ?? ''} ${this.lastName ?? ''}`.trim();
   }
 
-  @ManyToMany(() => Role, (role) => role.users, { cascade: true })
-  @JoinTable({
-    name: 'users_roles',
-    joinColumn: { name: 'user_id', referencedColumnName: 'id' },
-    inverseJoinColumn: { name: 'role_id', referencedColumnName: 'id' },
-  })
-  roles?: Role[];
+  @Column({ name: 'role_id', type: 'uuid', nullable: true })
+  roleId?: string;
+
+  @ManyToOne('Role', 'users', { nullable: true })
+  @JoinColumn({ name: 'role_id' })
+  role?: any;
+
+  @Column({ name: 'branch_id', type: 'integer', nullable: true })
+  @Index()
+  branchId?: number;
+
+  @ManyToOne('Branch', { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'branch_id' })
+  branch?: any;
 }

@@ -3,6 +3,7 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe, Logger } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
+import * as express from 'express';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
@@ -15,9 +16,20 @@ async function bootstrap() {
 
   // CORS
   app.enableCors({
-    origin: configService.get('FRONTEND_URL'),
+    origin: [
+      configService.get('FRONTEND_URL'),
+      'http://localhost:5173',
+      'http://localhost:5174',
+    ],
     credentials: true,
   });
+
+  // Aumentar límite de tamaño de payload para imágenes
+  app.use(express.json({ limit: '50mb' }));
+  app.use(express.urlencoded({ limit: '50mb', extended: true }));
+
+  // Servir archivos estáticos (imágenes)
+  app.use('/uploads', express.static('uploads'));
 
   // Prefijo global para API
   app.setGlobalPrefix('api');

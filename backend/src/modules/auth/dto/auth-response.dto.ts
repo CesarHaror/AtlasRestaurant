@@ -14,6 +14,7 @@ export class AuthResponse {
     email: string;
     firstName: string;
     lastName: string;
-    roles: Array<{ id: string; name: string }>;
+    branchId?: number;
+    role: { id: string; name: string } | null;
   };
 }

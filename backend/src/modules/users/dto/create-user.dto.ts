@@ -84,15 +84,21 @@ export class CreateUserDto {
   phone?: string;
 
   @ApiProperty({
-    example: ['role-uuid-1', 'role-uuid-2'],
-    description: 'IDs de roles a asignar',
+    example: '550e8400-e29b-41d4-a716-446655440000',
+    description: 'UUID del rol del usuario',
     required: false,
-    type: [String],
   })
   @IsOptional()
-  @IsArray()
-  @IsUUID('4', { each: true })
-  roleIds?: string[];
+  @IsUUID('4')
+  roleId?: string;
+
+  @ApiProperty({
+    example: 1,
+    description: 'ID de la sucursal asignada al usuario',
+    required: false,
+  })
+  @IsOptional()
+  branchId?: number;
 
   @ApiProperty({
     example: true,

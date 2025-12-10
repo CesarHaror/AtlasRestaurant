@@ -26,6 +26,14 @@ export class RolesGuard implements CanActivate {
 
     if (typeof user !== 'object' || user === null) return false;
 
+    // Check for single role (new structure)
+    const role = (user as Record<string, unknown>)['role'];
+    if (typeof role === 'object' && role !== null && 'name' in (role as Record<string, unknown>)) {
+      const roleName = (role as Record<string, unknown>)['name'] as string;
+      return requiredRoles.includes(roleName);
+    }
+
+    // Fallback to roles array (old structure)
     const roles = (user as Record<string, unknown>)['roles'];
     if (!Array.isArray(roles)) return false;
 

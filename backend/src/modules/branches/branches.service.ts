@@ -32,7 +32,7 @@ export class BranchesService {
   async findOne(id: number): Promise<Branch> {
     const b = await this.repo.findOne({
       where: { id },
-      relations: ['company'],
+      // No cargar company para evitar serialización circular
     });
     if (!b) throw new NotFoundException('Branch not found');
     return b;

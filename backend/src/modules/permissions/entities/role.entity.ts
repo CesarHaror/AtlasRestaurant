@@ -4,27 +4,37 @@ import {
   PrimaryGeneratedColumn,
   ManyToMany,
   JoinTable,
+  OneToMany,
   CreateDateColumn,
   UpdateDateColumn,
+  DeleteDateColumn,
 } from 'typeorm';
-import { User } from './user.entity';
 import { Permission } from './permission.entity';
+import { User } from '../../users/entities/user.entity';
+import { v4 as uuid } from 'uuid';
 
 @Entity('roles')
 export class Role {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id: string = uuid();
 
-  @Column({ length: 50, unique: true })
+  @Column({ type: 'varchar', length: 100, unique: true })
   name: string;
 
   @Column({ type: 'text', nullable: true })
-  description: string;
+  description?: string;
 
-  @ManyToMany(() => User, (user) => user.roles)
-  users: User[];
+  @Column({ name: 'is_system', type: 'boolean', default: false })
+  isSystem: boolean;
 
-  @ManyToMany(() => Permission, { eager: true })
+  @Column({ name: 'is_active', type: 'boolean', default: true })
+  isActive: boolean;
+
+  @ManyToMany(() => Permission, (permission) => permission.roles, {
+    eager: true,
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
   @JoinTable({
     name: 'role_permissions',
     joinColumn: { name: 'role_id', referencedColumnName: 'id' },
@@ -32,9 +42,15 @@ export class Role {
   })
   permissions: Permission[];
 
+  @OneToMany(() => User, (user) => user.role)
+  users: User[];
+
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
+
+  @DeleteDateColumn({ name: 'deleted_at' })
+  deletedAt?: Date;
 }
