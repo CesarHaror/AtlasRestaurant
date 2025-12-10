@@ -880,7 +880,6 @@ export class InventoryService {
           productId: createTransferDto.productId,
           warehouseId: createTransferDto.sourceWarehouseId,
         } as any,
-        relations: ['product'],
         lock: { mode: 'pessimistic_write' },
       });
 
