@@ -246,12 +246,14 @@ export class InventoryService {
         }
       } else if (
         createMovementDto.movementType === MovementType.ADJUSTMENT ||
-        createMovementDto.movementType === MovementType.WASTE
+        createMovementDto.movementType === MovementType.WASTE ||
+        createMovementDto.movementType === MovementType.SALE
       ) {
-        // AJUSTE/DESPERDICIO: Validar y actualizar lote si se especifica
-        // Para WASTE, negar automáticamente la cantidad (es una resta)
+        // AJUSTE/DESPERDICIO/VENTA: Validar y actualizar lote si se especifica
+        // Para WASTE y SALE, negar automáticamente la cantidad (es una resta)
         let adjustmentQuantity = createMovementDto.quantity;
-        if (createMovementDto.movementType === MovementType.WASTE) {
+        if (createMovementDto.movementType === MovementType.WASTE || 
+            createMovementDto.movementType === MovementType.SALE) {
           adjustmentQuantity = -Math.abs(adjustmentQuantity);
         }
         
@@ -288,7 +290,7 @@ export class InventoryService {
           
           await queryRunner.manager.save(lot);
         } else {
-          // Si no se especifica lote para ajuste, buscar uno FIFO para actualizar
+          // Si no se especifica lote para ajuste/venta/desperdicio, buscar uno FIFO para actualizar
           const lots = await queryRunner.manager.find(InventoryLot, {
             where: {
               productId: createMovementDto.productId,
@@ -319,7 +321,7 @@ export class InventoryService {
             await queryRunner.manager.save(lot);
             lotId = lot.id;
           } else {
-            // Ajuste negativo (desperdicio): restar de FIFO, puede abarcar múltiples lotes
+            // Ajuste/Venta/Desperdicio negativo: restar de FIFO, puede abarcar múltiples lotes
             let remaining = Math.abs(adjustmentQuantity);
             let currentLotIndex = 0;
             
