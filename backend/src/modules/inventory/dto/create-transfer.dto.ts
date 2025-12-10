@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, IsPositive, Min, IsUUID } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsPositive, Min, IsUUID, IsOptional, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateTransferDto {
@@ -32,6 +32,8 @@ export class CreateTransferDto {
   @ApiProperty({ example: 50, description: 'Cantidad a transferir' })
   quantity: number;
 
+  @IsOptional()
+  @IsString({ message: 'Las notas deben ser un texto' })
   @ApiProperty({
     example: 'Transferencia de stock entre almacenes',
     description: 'Observaciones o notas sobre la transferencia',
