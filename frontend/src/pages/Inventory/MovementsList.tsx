@@ -56,6 +56,8 @@ export default function MovementsList() {
   const [selectedProductId, setSelectedProductId] = useState<number | undefined>();
   const [formVisible, setFormVisible] = useState(false);
   const [movementType, setMovementType] = useState<string>('');
+  const [sortField, setSortField] = useState<string>('movementDate');
+  const [sortOrder, setSortOrder] = useState<'ascend' | 'descend'>('descend');
   const [form] = Form.useForm();
 
   const debouncedSearch = useDebounce(search, 500);
@@ -67,7 +69,7 @@ export default function MovementsList() {
 
   useEffect(() => {
     loadMovements();
-  }, [debouncedSearch, selectedProductId]);
+  }, [debouncedSearch, selectedProductId, sortField, sortOrder]);
 
   async function loadProducts() {
     try {
@@ -130,12 +132,41 @@ export default function MovementsList() {
         );
       }
 
+      // Aplicar sorting
+      data = sortData(data, sortField, sortOrder);
+
       setMovements(data);
     } catch (error: any) {
       message.error(error?.response?.data?.message || 'Error al cargar movimientos');
     } finally {
       setLoading(false);
     }
+  }
+
+  function sortData(data: InventoryMovement[], field: string, order: 'ascend' | 'descend') {
+    const sorted = [...data].sort((a, b) => {
+      let aValue: any = a;
+      let bValue: any = b;
+
+      // Navegar a campos anidados
+      if (field.includes('.')) {
+        const parts = field.split('.');
+        for (const part of parts) {
+          aValue = aValue?.[part];
+          bValue = bValue?.[part];
+        }
+      } else {
+        aValue = a[field as keyof InventoryMovement];
+        bValue = b[field as keyof InventoryMovement];
+      }
+
+      // Comparación
+      if (aValue < bValue) return order === 'ascend' ? -1 : 1;
+      if (aValue > bValue) return order === 'ascend' ? 1 : -1;
+      return 0;
+    });
+
+    return sorted;
   }
 
   async function handleCreateMovement(values: any) {
@@ -181,6 +212,8 @@ export default function MovementsList() {
       dataIndex: 'movementType',
       key: 'movementType',
       width: 120,
+      sorter: true,
+      sortOrder: sortField === 'movementType' ? sortOrder : undefined,
       render: (type: MovementType) => (
         <Tag color={movementTypeColors[type]}>
           {movementTypeLabels[type]}
@@ -191,6 +224,8 @@ export default function MovementsList() {
       title: 'Producto',
       key: 'product',
       width: 200,
+      sorter: true,
+      sortOrder: sortField === 'product.name' ? sortOrder : undefined,
       render: (_, record) => {
         return (
           <div>
@@ -206,12 +241,16 @@ export default function MovementsList() {
       key: 'quantity',
       width: 100,
       align: 'right',
+      sorter: true,
+      sortOrder: sortField === 'quantity' ? sortOrder : undefined,
       render: (quantity) => quantity.toLocaleString('es-MX'),
     },
     {
       title: 'Almacén',
       key: 'warehouse',
       width: 150,
+      sorter: true,
+      sortOrder: sortField === 'warehouse.name' ? sortOrder : undefined,
       render: (_, record) => record.warehouse?.name || '-',
     },
     {
@@ -230,12 +269,16 @@ export default function MovementsList() {
       dataIndex: 'movementDate',
       key: 'movementDate',
       width: 120,
+      sorter: true,
+      sortOrder: sortField === 'movementDate' ? sortOrder : undefined,
       render: (date) => dayjs(date).format('DD/MM/YYYY HH:mm'),
     },
     {
       title: 'Usuario',
       key: 'createdBy',
       width: 120,
+      sorter: true,
+      sortOrder: sortField === 'createdBy.username' ? sortOrder : undefined,
       render: (_, record) => record.createdBy?.username || '-',
     },
     {
@@ -290,6 +333,12 @@ export default function MovementsList() {
         dataSource={movements}
         rowKey="id"
         loading={loading}
+        onChange={(pagination, filters, sorter: any) => {
+          if (sorter && sorter.field) {
+            setSortField(sorter.field);
+            setSortOrder(sorter.order || 'descend');
+          }
+        }}
         pagination={{
           pageSize: 50,
           showTotal: (total) => `Total: ${total} movimientos`,

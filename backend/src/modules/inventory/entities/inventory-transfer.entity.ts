@@ -51,7 +51,7 @@ export class InventoryTransfer {
   @Column('decimal', { precision: 12, scale: 4 })
   quantity: number;
 
-  @Column('decimal', { precision: 12, scale: 4, nullable: true })
+  @Column('decimal', { precision: 12, scale: 4, nullable: true, name: 'unit_cost' })
   unitCost: number;
 
   @Column({ type: 'text', nullable: true })
