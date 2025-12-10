@@ -1,0 +1,35 @@
+.session-manager {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.session-item {
+  padding: 15px;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+.session-item:hover {
+  background-color: #f5f5f5;
+}
+
+.session-item.active {
+  background-color: #e6f7ff;
+  border-left: 4px solid #1890ff;
+}
+
+.session-item .ant-list-item-meta {
+  flex: 1;
+}
+
+.session-item .ant-list-item-meta-title {
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.session-item .ant-list-item-meta-description {
+  font-size: 12px;
+  color: #999;
+}

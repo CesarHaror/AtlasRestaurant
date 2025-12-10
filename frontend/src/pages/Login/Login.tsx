@@ -26,7 +26,9 @@ export default function LoginPage() {
   return (
     <div className="login-wrapper">
       <Card className="login-card" bordered={false}>
-        <Typography.Title level={3} className="login-title">Atlas ERP</Typography.Title>
+        <div className="login-logo-wrap">
+          <img src="/logo-AtlasERP.png" alt="Atlas ERP" className="login-logo" />
+        </div>
         <Typography.Text className="login-subtitle">Inicia sesión para continuar</Typography.Text>
         <Form form={form} layout="vertical" onFinish={onFinish}>
           <Form.Item name="username" label="Usuario" rules={[{ required: true, message: 'Ingresa tu usuario' }]}>

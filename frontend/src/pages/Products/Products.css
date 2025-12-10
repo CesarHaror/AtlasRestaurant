@@ -11,6 +11,7 @@
 
 .products-title {
   margin: 0 !important;
+  color: #fff !important;
 }
 
 .products-filters {
@@ -27,6 +28,10 @@
 
 .products-table .ant-table-cell {
   padding: 12px 16px;
+}
+
+.products-table .ant-pagination .ant-pagination-total-text {
+  color: #fff;
 }
 
 .product-actions {

@@ -1,33 +1,71 @@
-# React + TypeScript + Vite
+# Sistema POS - AtlasERP
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Interfaz moderna de Punto de Venta para gestionar ventas, productos y sesiones de caja.
 
-Currently, two official plugins are available:
+## 🚀 Características
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- ✅ **Gestión de Productos**: Visualización en grid con búsqueda y filtros
+- ✅ **Carrito Inteligente**: Agregar/remover items, ajustar cantidades, calcular totales
+- ✅ **Múltiples Métodos de Pago**: Efectivo, Tarjeta, Cheque, Transferencia
+- ✅ **Sesiones de Caja**: Abrir/cerrar sesiones y gestionar cajas
+- ✅ **Cálculos Automáticos**: Subtotal, descuentos, IVA (16%), cambio
+- ✅ **Diseño Responsivo**: Desktop y Mobile optimizados
+- ✅ **Interfaz Intuitiva**: Construida con Ant Design
 
-## React Compiler
+## 🛠 Stack Tecnológico
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **React 19**: UI moderna con hooks
+- **TypeScript**: Tipado estático
+- **Vite**: Build tool ultrarrápido
+- **Ant Design**: Componentes UI profesionales
+- **Zustand**: Gestión de estado ligera
+- **Axios**: Cliente HTTP
 
-## Expanding the ESLint configuration
+## 📁 Estructura
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+```
+src/
+├── components/        # Componentes reutilizables
+├── pages/            # Páginas principales
+├── services/         # Cliente API
+├── stores/           # Estado global (Zustand)
+├── types/            # Interfaces TypeScript
+└── App.tsx           # Componente raíz
+```
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## 🎯 Inicio Rápido
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
+```bash
+# Desarrollo
+npm run dev        # http://localhost:5173
+
+# Build producción
+npm run build
+
+# Preview del build
+npm run preview
+```
+
+## 📖 Uso
+
+1. **Abrir Sesión**: Inicia sesión de caja
+2. **Agregar Productos**: Selecciona productos del catálogo
+3. **Modificar Carrito**: Ajusta cantidades o elimina items
+4. **Aplicar Descuentos**: Ingresa monto de descuento
+5. **Procesar Pago**: Selecciona método(s) de pago y confirma
+6. **Cerrar Sesión**: Finaliza la sesión de caja
+
+## 🔌 API Endpoints
+
+- `GET /api/products` - Listar productos
+- `GET /api/cash-registers` - Obtener cajas
+- `POST /api/cash-register-sessions/open` - Abrir sesión
+- `POST /api/cash-register-sessions/{id}/close` - Cerrar sesión
+- `POST /api/sales` - Crear venta
+
+## 📝 Documentación
+
+Ver [POS_GUIDE.md](./POS_GUIDE.md) para más detalles
       tseslint.configs.stylisticTypeChecked,
 
       // Other configs...

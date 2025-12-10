@@ -7,8 +7,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource, FindOptionsWhere, QueryFailedError } from 'typeorm';
 import { InventoryLot, LotStatus } from '../entities/inventory-lot.entity';
 import { InventoryMovement, MovementType } from '../entities/inventory-movement.entity';
+import { InventoryTransfer } from '../entities/inventory-transfer.entity';
 import { CreateLotDto, UpdateLotDto } from '../dto/create-lot.dto';
 import { CreateMovementDto } from '../dto/create-movement.dto';
+import { CreateTransferDto } from '../dto/create-transfer.dto';
 
 @Injectable()
 export class InventoryService {
@@ -17,6 +19,8 @@ export class InventoryService {
     private lotRepository: Repository<InventoryLot>,
     @InjectRepository(InventoryMovement)
     private movementRepository: Repository<InventoryMovement>,
+    @InjectRepository(InventoryTransfer)
+    private transferRepository: Repository<InventoryTransfer>,
     private dataSource: DataSource,
   ) {}
 
@@ -198,10 +202,16 @@ export class InventoryService {
 
       // ========== LÓGICA ESPECIAL POR TIPO DE MOVIMIENTO ==========
 
-      if (createMovementDto.movementType === MovementType.PURCHASE) {
-        // COMPRA: Crear lote automáticamente si no existe
+      if (
+        createMovementDto.movementType === MovementType.PURCHASE ||
+        createMovementDto.movementType === MovementType.INITIAL
+      ) {
+        // COMPRA / STOCK INICIAL: Crear lote automáticamente si no existe
         if (!lotId) {
-          const lotNumber = `LOT-${Date.now()}`;
+          const lotNumber = 
+            createMovementDto.movementType === MovementType.INITIAL
+              ? `INITIAL-${Date.now()}`
+              : `LOT-${Date.now()}`;
           const internalLot = await this.generateInternalLotNumber(createMovementDto.warehouseId);
           
           const lot = queryRunner.manager.create(InventoryLot, {
@@ -239,6 +249,12 @@ export class InventoryService {
         createMovementDto.movementType === MovementType.WASTE
       ) {
         // AJUSTE/DESPERDICIO: Validar y actualizar lote si se especifica
+        // Para WASTE, negar automáticamente la cantidad (es una resta)
+        let adjustmentQuantity = createMovementDto.quantity;
+        if (createMovementDto.movementType === MovementType.WASTE) {
+          adjustmentQuantity = -Math.abs(adjustmentQuantity);
+        }
+        
         if (lotId) {
           const lot = await queryRunner.manager.findOne(InventoryLot, {
             where: { id: lotId } as FindOptionsWhere<InventoryLot>,
@@ -249,18 +265,18 @@ export class InventoryService {
             throw new NotFoundException(`Lote ${lotId} no encontrado`);
           }
           
-          const newQuantity = Number(lot.currentQuantity) + createMovementDto.quantity;
+          const newQuantity = Number(lot.currentQuantity) + adjustmentQuantity;
           
           // Validar que no quede negativo
           if (newQuantity < 0) {
             throw new BadRequestException(
-              `Stock insuficiente. Disponible: ${lot.currentQuantity}, solicitado: ${Math.abs(createMovementDto.quantity)}`,
+              `Stock insuficiente. Disponible: ${lot.currentQuantity}, solicitado: ${Math.abs(adjustmentQuantity)}`,
             );
           }
           
           // Si es ajuste positivo, aumentar initial_quantity también
-          if (createMovementDto.quantity > 0) {
-            lot.initialQuantity = Number(lot.initialQuantity) + createMovementDto.quantity;
+          if (adjustmentQuantity > 0) {
+            lot.initialQuantity = Number(lot.initialQuantity) + adjustmentQuantity;
           }
           
           lot.currentQuantity = newQuantity;
@@ -283,13 +299,13 @@ export class InventoryService {
             lock: { mode: 'pessimistic_write' },
           });
           
-          if (createMovementDto.quantity < 0 && lots.length === 0) {
+          if (adjustmentQuantity < 0 && lots.length === 0) {
             throw new BadRequestException(
               `No hay lotes disponibles para restar en el almacén`,
             );
           }
           
-          if (createMovementDto.quantity > 0) {
+          if (adjustmentQuantity > 0) {
             // Ajuste positivo: usar el primer lote (o el que tengas lógica)
             if (lots.length === 0) {
               throw new BadRequestException(
@@ -298,13 +314,13 @@ export class InventoryService {
             }
             
             const lot = lots[0];
-            lot.currentQuantity = Number(lot.currentQuantity) + createMovementDto.quantity;
-            lot.initialQuantity = Number(lot.initialQuantity) + createMovementDto.quantity;
+            lot.currentQuantity = Number(lot.currentQuantity) + adjustmentQuantity;
+            lot.initialQuantity = Number(lot.initialQuantity) + adjustmentQuantity;
             await queryRunner.manager.save(lot);
             lotId = lot.id;
           } else {
             // Ajuste negativo (desperdicio): restar de FIFO, puede abarcar múltiples lotes
-            let remaining = Math.abs(createMovementDto.quantity);
+            let remaining = Math.abs(adjustmentQuantity);
             let currentLotIndex = 0;
             
             while (remaining > 0 && currentLotIndex < lots.length) {
@@ -831,5 +847,204 @@ export class InventoryService {
       .execute();
 
     return result.affected || 0;
+  }
+
+  // ==================== TRANSFERENCIAS ====================
+
+  async createTransfer(
+    createTransferDto: CreateTransferDto,
+    userId: number,
+  ): Promise<InventoryTransfer> {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      // Validaciones iniciales
+      if (createTransferDto.sourceWarehouseId === createTransferDto.destinationWarehouseId) {
+        throw new BadRequestException(
+          'El almacén origen y destino no pueden ser el mismo',
+        );
+      }
+
+      if (createTransferDto.quantity <= 0) {
+        throw new BadRequestException('La cantidad debe ser mayor a 0');
+      }
+
+      // Obtener el lote origen con lock
+      const sourceLot = await queryRunner.manager.findOne(InventoryLot, {
+        where: {
+          id: createTransferDto.lotId,
+          productId: createTransferDto.productId,
+          warehouseId: createTransferDto.sourceWarehouseId,
+        } as any,
+        relations: ['product'],
+        lock: { mode: 'pessimistic_write' },
+      });
+
+      if (!sourceLot) {
+        throw new NotFoundException(
+          `Lote no encontrado en el almacén origen`,
+        );
+      }
+
+      // Validar cantidad disponible
+      if (sourceLot.currentQuantity < createTransferDto.quantity) {
+        throw new BadRequestException(
+          `Stock insuficiente. Disponible: ${sourceLot.currentQuantity}, solicitado: ${createTransferDto.quantity}`,
+        );
+      }
+
+      // 1. Restar del lote origen
+      sourceLot.currentQuantity = Number(sourceLot.currentQuantity) - createTransferDto.quantity;
+      
+      if (sourceLot.currentQuantity <= 0) {
+        sourceLot.status = LotStatus.SOLD_OUT;
+      }
+
+      await queryRunner.manager.save(sourceLot);
+
+      // 2. Buscar o crear lote en almacén destino
+      let destinationLot = await queryRunner.manager.findOne(InventoryLot, {
+        where: {
+          productId: createTransferDto.productId,
+          warehouseId: createTransferDto.destinationWarehouseId,
+          lotNumber: sourceLot.lotNumber, // Mismo número de lote
+          status: LotStatus.AVAILABLE,
+        } as any,
+        lock: { mode: 'pessimistic_write' },
+      });
+
+      if (!destinationLot) {
+        // Crear nuevo lote en destino con mismo número de lote
+        const internalLot = await this.generateInternalLotNumber(
+          createTransferDto.destinationWarehouseId,
+        );
+
+        destinationLot = queryRunner.manager.create(InventoryLot, {
+          productId: createTransferDto.productId,
+          warehouseId: createTransferDto.destinationWarehouseId,
+          lotNumber: sourceLot.lotNumber, // Mantener mismo número
+          internalLot,
+          initialQuantity: createTransferDto.quantity,
+          currentQuantity: createTransferDto.quantity,
+          reservedQuantity: 0,
+          unitCost: sourceLot.unitCost,
+          status: LotStatus.AVAILABLE,
+          entryDate: sourceLot.entryDate,
+          expiryDate: sourceLot.expiryDate,
+        });
+
+        await queryRunner.manager.save(destinationLot);
+      } else {
+        // Agregar cantidad al lote existente
+        destinationLot.currentQuantity = Number(destinationLot.currentQuantity) + createTransferDto.quantity;
+        destinationLot.initialQuantity = Number(destinationLot.initialQuantity) + createTransferDto.quantity;
+        await queryRunner.manager.save(destinationLot);
+      }
+
+      // 3. Registrar la transferencia
+      const transfer = queryRunner.manager.create(InventoryTransfer, {
+        sourceWarehouseId: createTransferDto.sourceWarehouseId,
+        destinationWarehouseId: createTransferDto.destinationWarehouseId,
+        productId: createTransferDto.productId,
+        lotId: createTransferDto.lotId,
+        quantity: createTransferDto.quantity,
+        unitCost: sourceLot.unitCost,
+        notes: createTransferDto.notes,
+        userId,
+      } as any);
+
+      const savedTransfer = await queryRunner.manager.save(transfer);
+
+      // 4. Registrar movimientos de salida e entrada
+      const outgoingMovement = queryRunner.manager.create(InventoryMovement, {
+        movementType: MovementType.TRANSFER,
+        productId: createTransferDto.productId,
+        lotId: createTransferDto.lotId,
+        warehouseId: createTransferDto.sourceWarehouseId,
+        quantity: -createTransferDto.quantity, // Negativo = salida
+        unitCost: sourceLot.unitCost,
+        totalCost: Number((Number(sourceLot.unitCost) * createTransferDto.quantity).toFixed(4)),
+        notes: `Transferencia enviada a almacén ${createTransferDto.destinationWarehouseId}`,
+        userId,
+        movementDate: new Date(),
+      });
+
+      await queryRunner.manager.save(outgoingMovement);
+
+      const incomingMovement = queryRunner.manager.create(InventoryMovement, {
+        movementType: MovementType.TRANSFER,
+        productId: createTransferDto.productId,
+        lotId: destinationLot.id,
+        warehouseId: createTransferDto.destinationWarehouseId,
+        quantity: createTransferDto.quantity, // Positivo = entrada
+        unitCost: sourceLot.unitCost,
+        totalCost: Number((Number(sourceLot.unitCost) * createTransferDto.quantity).toFixed(4)),
+        notes: `Transferencia recibida de almacén ${createTransferDto.sourceWarehouseId}`,
+        userId,
+        movementDate: new Date(),
+      });
+
+      await queryRunner.manager.save(incomingMovement);
+
+      await queryRunner.commitTransaction();
+      return savedTransfer;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
+  async findAllTransfers(
+    sourceWarehouseId?: number,
+    destinationWarehouseId?: number,
+    startDate?: Date,
+    endDate?: Date,
+  ): Promise<InventoryTransfer[]> {
+    const queryBuilder = this.transferRepository
+      .createQueryBuilder('transfer')
+      .leftJoinAndSelect('transfer.sourceWarehouse', 'sourceWarehouse')
+      .leftJoinAndSelect('transfer.destinationWarehouse', 'destinationWarehouse')
+      .leftJoinAndSelect('transfer.product', 'product')
+      .leftJoinAndSelect('transfer.lot', 'lot');
+
+    if (sourceWarehouseId) {
+      queryBuilder.andWhere('transfer.sourceWarehouseId = :sourceWarehouseId', {
+        sourceWarehouseId,
+      });
+    }
+
+    if (destinationWarehouseId) {
+      queryBuilder.andWhere('transfer.destinationWarehouseId = :destinationWarehouseId', {
+        destinationWarehouseId,
+      });
+    }
+
+    if (startDate) {
+      queryBuilder.andWhere('transfer.createdAt >= :startDate', { startDate });
+    }
+
+    if (endDate) {
+      queryBuilder.andWhere('transfer.createdAt <= :endDate', { endDate });
+    }
+
+    return queryBuilder
+      .orderBy('transfer.createdAt', 'DESC')
+      .getMany();
+  }
+
+  async findTransfersByProduct(productId: number): Promise<InventoryTransfer[]> {
+    return this.transferRepository
+      .createQueryBuilder('transfer')
+      .leftJoinAndSelect('transfer.sourceWarehouse', 'sourceWarehouse')
+      .leftJoinAndSelect('transfer.destinationWarehouse', 'destinationWarehouse')
+      .leftJoinAndSelect('transfer.product', 'product')
+      .leftJoinAndSelect('transfer.lot', 'lot')
+      .where('transfer.productId = :productId', { productId })
+      .orderBy('transfer.createdAt', 'DESC')
+      .getMany();
   }
 }

@@ -7,6 +7,8 @@ import type {
   ProductListResponse,
   CreateProductDto,
   UpdateProductDto,
+  CreateCategoryDto,
+  UpdateCategoryDto,
 } from '../types/product.types';
 
 export const productsApi = {
@@ -51,6 +53,25 @@ export const productsApi = {
   async getCategories(): Promise<ProductCategory[]> {
     const { data } = await client.get<ProductCategory[]>('/categories');
     return data;
+  },
+
+  async getCategory(id: number): Promise<ProductCategory> {
+    const { data } = await client.get<ProductCategory>(`/categories/${id}`);
+    return data;
+  },
+
+  async createCategory(dto: CreateCategoryDto): Promise<ProductCategory> {
+    const { data } = await client.post<ProductCategory>('/categories', dto);
+    return data;
+  },
+
+  async updateCategory(id: number, dto: UpdateCategoryDto): Promise<ProductCategory> {
+    const { data } = await client.patch<ProductCategory>(`/categories/${id}`, dto);
+    return data;
+  },
+
+  async deleteCategory(id: number): Promise<void> {
+    await client.delete(`/categories/${id}`);
   },
 
   // Units of Measure

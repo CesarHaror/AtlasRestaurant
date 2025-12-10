@@ -17,6 +17,7 @@ import { InventoryMovement } from './entities/inventory-movement.entity';
 import { InventoryAdjustment } from './entities/inventory-adjustment.entity';
 import { AdjustmentItem } from './entities/adjustment-item.entity';
 import { WasteRecord } from './entities/waste-record.entity';
+import { InventoryTransfer } from './entities/inventory-transfer.entity';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { WasteRecord } from './entities/waste-record.entity';
       InventoryAdjustment,
       AdjustmentItem,
       WasteRecord,
+      InventoryTransfer,
     ]),
   ],
   controllers: [InventoryController],

@@ -28,6 +28,7 @@ import { CreateLotDto } from './dto/create-lot.dto';
 import { CreateMovementDto } from './dto/create-movement.dto';
 import { CreateAdjustmentDto, ApproveAdjustmentDto } from './dto/create-adjustment.dto';
 import { CreateWasteDto } from './dto/create-waste.dto';
+import { CreateTransferDto } from './dto/create-transfer.dto';
 import { CreateWarehouseDto, UpdateWarehouseDto } from './dto/create-warehouse.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
@@ -335,5 +336,46 @@ export class InventoryController {
   @ApiOperation({ summary: 'Obtener merma por ID' })
   findWaste(@Param('id', ParseIntPipe) id: number) {
     return this.wasteService.findOne(id);
+  }
+
+  // ==================== TRANSFERENCIAS ====================
+
+  @Post('transfers')
+  @Roles('Admin', 'Gerente', 'Almacenista')
+  @ApiOperation({ summary: 'Registrar transferencia entre almacenes' })
+  @ApiResponse({ status: 201, description: 'Transferencia registrada exitosamente' })
+  @ApiResponse({ status: 400, description: 'Validación fallida' })
+  createTransfer(
+    @Body() createTransferDto: CreateTransferDto,
+    @CurrentUser() user: any,
+  ) {
+    return this.inventoryService.createTransfer(createTransferDto, user.id);
+  }
+
+  @Get('transfers')
+  @ApiOperation({ summary: 'Listar todas las transferencias' })
+  @ApiQuery({ name: 'sourceWarehouseId', required: false, type: Number })
+  @ApiQuery({ name: 'destinationWarehouseId', required: false, type: Number })
+  @ApiQuery({ name: 'startDate', required: false, type: Date })
+  @ApiQuery({ name: 'endDate', required: false, type: Date })
+  findAllTransfers(
+    @Query('sourceWarehouseId') sourceWarehouseId?: number,
+    @Query('destinationWarehouseId') destinationWarehouseId?: number,
+    @Query('startDate') startDate?: Date,
+    @Query('endDate') endDate?: Date,
+  ) {
+    return this.inventoryService.findAllTransfers(
+      sourceWarehouseId,
+      destinationWarehouseId,
+      startDate,
+      endDate,
+    );
+  }
+
+  @Get('transfers/product/:productId')
+  @ApiOperation({ summary: 'Obtener transferencias de un producto' })
+  @ApiParam({ name: 'productId', type: Number })
+  findTransfersByProduct(@Param('productId', ParseIntPipe) productId: number) {
+    return this.inventoryService.findTransfersByProduct(productId);
   }
 }

@@ -1,0 +1,15 @@
+.inventory-page {
+  padding: 24px;
+}
+
+.ant-pagination-total-text {
+  color: #fff;
+}
+
+.inventory-page .ant-card {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.inventory-page .ant-table-wrapper {
+  margin-top: 16px;
+}

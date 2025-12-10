@@ -1,0 +1,54 @@
+.branch-selector-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  padding: 40px 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 8px;
+}
+
+.branch-selector-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  padding: 40px !important;
+  text-align: center;
+}
+
+.branch-selector-header {
+  margin-bottom: 30px;
+}
+
+.branch-selector-header h2 {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #333;
+}
+
+.branch-selector-header p {
+  font-size: 14px;
+  color: #666;
+  margin: 0;
+}
+
+.branch-info {
+  margin: 30px 0;
+  padding: 20px;
+  background: #f0f2f5;
+  border-radius: 8px;
+}
+
+.branch-selector-footer {
+  margin-top: 30px;
+  display: flex;
+  justify-content: center;
+}
+
+.branch-selector-note {
+  margin-top: 20px;
+  font-size: 12px;
+  color: #999;
+  font-style: italic;
+}

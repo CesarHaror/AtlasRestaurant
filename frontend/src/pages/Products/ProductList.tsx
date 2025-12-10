@@ -9,6 +9,7 @@ import {
   Typography,
   Select,
   Tag,
+  Image,
 } from 'antd';
 import {
   PlusOutlined,
@@ -112,23 +113,62 @@ export default function ProductList() {
 
   const columns: ColumnsType<Product> = [
     {
+      title: 'Foto',
+      dataIndex: 'thumbnailUrl',
+      key: 'thumbnail',
+      width: 100,
+      render: (thumbnailUrl) => (
+        thumbnailUrl && (
+          <Image
+            src={thumbnailUrl}
+            alt="Producto"
+            width={80}
+            height={80}
+            style={{ objectFit: 'cover', borderRadius: '4px' }}
+          />
+        )
+      ),
+    },
+    {
       title: 'SKU',
       dataIndex: 'sku',
       key: 'sku',
       width: 120,
+      sorter: (a, b) => (a.sku || '').localeCompare(b.sku || ''),
     },
     {
       title: 'Nombre',
       dataIndex: 'name',
       key: 'name',
       ellipsis: true,
+      width: 200,
+      sorter: (a, b) => (a.name || '').localeCompare(b.name || ''),
+    },
+    {
+      title: 'Descripción',
+      dataIndex: 'description',
+      key: 'description',
+      ellipsis: true,
+      width: 250,
+      sorter: (a, b) => (a.description || '').localeCompare(b.description || ''),
+      render: (description) => {
+        if (!description) return '-';
+        return description.length > 60 ? `${description.substring(0, 60)}...` : description;
+      },
     },
     {
       title: 'Categoría',
-      dataIndex: ['category', 'name'],
       key: 'category',
-      width: 150,
-      render: (name) => name || '-',
+      width: 180,
+      sorter: (a, b) => {
+        const catA = categories.find((c) => c.id === a.categoryId)?.name || '';
+        const catB = categories.find((c) => c.id === b.categoryId)?.name || '';
+        return catA.localeCompare(catB);
+      },
+      render: (_, record) => {
+        const cat = categories.find((c) => c.id === record.categoryId);
+        return cat?.name || '-';
+      },
     },
     {
       title: 'Precio',
@@ -136,16 +176,27 @@ export default function ProductList() {
       key: 'price',
       width: 120,
       align: 'right',
-      render: (price) => `$${price.toFixed(2)}`,
+      sorter: (a, b) => {
+        const priceA = typeof a.price === 'number' ? a.price : parseFloat(a.price) || 0;
+        const priceB = typeof b.price === 'number' ? b.price : parseFloat(b.price) || 0;
+        return priceA - priceB;
+      },
+      render: (price) => {
+        if (price === null || price === undefined || price === '') return '-';
+        const num = typeof price === 'number' ? price : parseFloat(price);
+        if (isNaN(num)) return '-';
+        return `$${num.toFixed(2)}`;
+      },
     },
     {
-      title: 'Estado',
-      dataIndex: 'isActive',
-      key: 'isActive',
-      width: 100,
-      render: (isActive) => (
-        <Tag color={isActive ? 'success' : 'default'}>
-          {isActive ? 'Activo' : 'Inactivo'}
+      title: 'Activo en POS',
+      dataIndex: 'showInPos',
+      key: 'showInPos',
+      width: 120,
+      sorter: (a, b) => (a.showInPos === b.showInPos ? 0 : a.showInPos ? -1 : 1),
+      render: (showInPos) => (
+        <Tag color={showInPos ? 'success' : 'default'}>
+          {showInPos ? 'Sí' : 'No'}
         </Tag>
       ),
     },

@@ -1,5 +1,6 @@
 .main-layout { min-height: 100vh; }
-.sider .logo { height: 48px; margin: 16px; color: #fff; font-weight: 600; font-size: 18px; display:flex; align-items:center; }
+.sider .logo { margin: 0 16px; display:flex; align-items:center; justify-content:center; cursor:pointer; padding-top:64px; padding-bottom:64px; }
+.sider .logo .logo-img { height: 128px; }
 .header { background: #fff; display: flex; justify-content: flex-end; padding: 0 24px; box-shadow: 0 2px 4px rgba(0,0,0,0.08); }
 .header-right { display: flex; align-items: center; gap: 16px; }
 .user-chip { cursor: pointer; font-weight: 500; }

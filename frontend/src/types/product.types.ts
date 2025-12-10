@@ -26,16 +26,34 @@ export interface Product {
   imageUrl?: string;
   thumbnailUrl?: string;
   isActive: boolean;
+  showInPos: boolean;
   createdAt: string;
   updatedAt: string;
 }
 
 export interface ProductCategory {
   id: number;
+  code: string;
   name: string;
   description?: string;
-  isActive: boolean;
+  displayOrder?: number;
+  imageUrl?: string;
+  thumbnailUrl?: string;
+  isActive?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 }
+
+export interface CreateCategoryDto {
+  code: string;
+  name: string;
+  description?: string;
+  displayOrder?: number;
+  imageUrl?: string;
+  thumbnailUrl?: string;
+}
+
+export type UpdateCategoryDto = Partial<CreateCategoryDto>;
 
 export interface UnitOfMeasure {
   id: number;
@@ -84,6 +102,7 @@ export interface CreateProductDto {
   satUnitKey?: string;
   imageUrl?: string;
   thumbnailUrl?: string;
+  showInPos?: boolean;
 }
 
 export type UpdateProductDto = Partial<CreateProductDto>;

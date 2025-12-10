@@ -16,17 +16,18 @@ export default function ProductDetail({ open, product, onClose }: Props) {
       footer={null}
       width={800}
       className="product-detail-modal"
+      mask={false}
+      getContainer={false}
     >
-      <div className="product-detail-section">
-        {product.imageUrl && (
-          <div style={{ marginBottom: 16, textAlign: 'center' }}>
-            <Image
-              src={product.imageUrl}
-              alt={product.name}
-              style={{ maxWidth: 200, maxHeight: 200, objectFit: 'contain' }}
-            />
-          </div>
-        )}
+      {product.imageUrl && (
+        <div style={{ marginBottom: 16, textAlign: 'center' }}>
+          <Image
+            src={product.imageUrl}
+            alt={product.name}
+            style={{ maxWidth: 200, maxHeight: 200, objectFit: 'contain' }}
+          />
+        </div>
+      )}
 
         <Descriptions bordered column={2} size="small">
           <Descriptions.Item label="SKU" span={1}>
@@ -48,10 +49,20 @@ export default function ProductDetail({ open, product, onClose }: Props) {
             {product.unitOfMeasure?.name || '-'}
           </Descriptions.Item>
           <Descriptions.Item label="Precio" span={1}>
-            ${product.price.toFixed(2)}
+            {(() => {
+              const raw = product.price as any;
+              if (raw === null || raw === undefined || raw === '') return '-';
+              const num = typeof raw === 'number' ? raw : parseFloat(raw);
+              return isNaN(num) ? '-' : `$${num.toFixed(2)}`;
+            })()}
           </Descriptions.Item>
           <Descriptions.Item label="Costo Estándar" span={1}>
-            {product.standardCost ? `$${product.standardCost.toFixed(2)}` : '-'}
+            {(() => {
+              const raw = product.standardCost as any;
+              if (raw === null || raw === undefined || raw === '') return '-';
+              const num = typeof raw === 'number' ? raw : parseFloat(raw);
+              return isNaN(num) ? '-' : `$${num.toFixed(2)}`;
+            })()}
           </Descriptions.Item>
           <Descriptions.Item label="Estado" span={1}>
             <Tag color={product.isActive ? 'success' : 'default'}>
@@ -127,7 +138,6 @@ export default function ProductDetail({ open, product, onClose }: Props) {
             {new Date(product.updatedAt).toLocaleDateString('es-MX')}
           </Descriptions.Item>
         </Descriptions>
-      </div>
     </Modal>
   );
 }
