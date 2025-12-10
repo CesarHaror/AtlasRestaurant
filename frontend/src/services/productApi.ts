@@ -5,7 +5,8 @@ const API_URL = '/products';
 
 export const getProducts = async (): Promise<Product[]> => {
   const response = await api.get(API_URL);
-  return response.data;
+  // El endpoint devuelve { data: [], total, page, totalPages }
+  return Array.isArray(response.data) ? response.data : (response.data?.data || []);
 };
 
 export const getProduct = async (id: string): Promise<Product> => {

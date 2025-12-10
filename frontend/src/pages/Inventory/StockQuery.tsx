@@ -7,8 +7,6 @@ import { getWarehouses } from '../../services/inventoryApi';
 import type { StockInfo, Product, Warehouse, LotStatus } from '../../types/inventory';
 import './Inventory.css';
 
-const { Option } = Select;
-
 export default function StockQuery() {
   const [loading, setLoading] = useState(false);
   const [stockData, setStockData] = useState<StockInfo[]>([]);
@@ -29,10 +27,17 @@ export default function StockQuery() {
         getProducts(),
         getWarehouses()
       ]);
-      setProducts(Array.isArray(productsData) ? productsData : []);
-      setWarehouses(Array.isArray(warehousesData) ? warehousesData : []);
+      // Asegurar que siempre es un array
+      const productsArray = (productsData && Array.isArray(productsData)) ? productsData : [];
+      const warehousesArray = (warehousesData && Array.isArray(warehousesData)) ? warehousesData : [];
+      
+      setProducts(productsArray);
+      setWarehouses(warehousesArray);
     } catch (error) {
+      console.error('Error al cargar filtros:', error);
       message.error('Error al cargar filtros');
+      setProducts([]);
+      setWarehouses([]);
     }
   };
 
@@ -223,7 +228,7 @@ export default function StockQuery() {
                   (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
                 }
                 options={(products || []).map(p => ({
-                  value: p.id,
+                  value: String(p.id),
                   label: `${p.name} (${p.sku})`
                 }))}
               />
@@ -231,15 +236,17 @@ export default function StockQuery() {
                 style={{ width: 200 }}
                 placeholder="Filtrar por almacén"
                 allowClear
+                showSearch
                 value={selectedWarehouse}
                 onChange={setSelectedWarehouse}
-              >
-                {warehouses.map(w => (
-                  <Option key={w.id} value={w.id}>
-                    {w.name} ({w.code})
-                  </Option>
-                ))}
-              </Select>
+                filterOption={(input: string, option: any) =>
+                  (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                }
+                options={(warehouses || []).map(w => ({
+                  value: String(w.id),
+                  label: `${w.name} (${w.code})`
+                }))}
+              />
               <Button type="primary" icon={<SearchOutlined />} onClick={handleSearch}>
                 Buscar
               </Button>
