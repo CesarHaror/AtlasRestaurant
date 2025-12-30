@@ -10,7 +10,7 @@ import './Inventory.css';
 export default function StockQuery() {
   const [loading, setLoading] = useState(false);
   const [stockData, setStockData] = useState<StockInfo[]>([]);
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<MenuItem[]>([]);
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<string | undefined>();
   const [selectedWarehouse, setSelectedWarehouse] = useState<string | undefined>();
@@ -28,10 +28,10 @@ export default function StockQuery() {
         getWarehouses()
       ]);
       // Asegurar que siempre es un array
-      const productsArray = (productsData && Array.isArray(productsData)) ? productsData : [];
+      const productsArray = (menuItemsData && Array.isArray(menuItemsData)) ? productsData : [];
       const warehousesArray = (warehousesData && Array.isArray(warehousesData)) ? warehousesData : [];
       
-      setProducts(productsArray);
+      setProducts(menuItemsArray);
       setWarehouses(warehousesArray);
     } catch (error) {
       console.error('Error al cargar filtros:', error);
@@ -61,7 +61,7 @@ export default function StockQuery() {
       if (selectedProduct && selectedWarehouse) {
         // Buscar por producto y almacén específicos
         const productStock = await getStockByProduct(selectedProduct);
-        data = (productStock || []).filter((s: StockInfo) => String((s as any).warehouseId) === String(selectedWarehouse));
+        data = (menuItemStock || []).filter((s: StockInfo) => String((s as any).warehouseId) === String(selectedWarehouse));
       } else if (selectedProduct) {
         data = await getStockByProduct(selectedProduct);
       } else if (selectedWarehouse) {
@@ -227,7 +227,7 @@ export default function StockQuery() {
                 filterOption={(input: string, option: any) =>
                   (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
                 }
-                options={(products || []).map(p => ({
+                options={(menuItems || []).map(p => ({
                   value: String(p.id),
                   label: `${p.name} (${p.sku})`
                 }))}

@@ -14,7 +14,7 @@ import SuppliersList from './pages/Suppliers/SuppliersList';
 import PurchasesList from './pages/Purchases/PurchasesList';
 import PurchaseForm from './pages/Purchases/PurchaseForm';
 import UsersList from './pages/Admin/UsersList';
-import CompaniesList from './pages/Admin/CompaniesList';
+import RestaurantsList from './pages/Admin/RestaurantsList';
 import BranchesList from './pages/Admin/BranchesList';
 import RolesPermissions from './pages/Admin/RolesPermissions';
 import CashRegistersPage from './pages/CashRegistersPage.tsx';
@@ -27,8 +27,8 @@ export default function App() {
         <Route element={<ProtectedRoute />}>
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/products" element={<ProductList />} />
-          <Route path="/products/categories" element={<CategoriesList />} />
+          <Route path="/menu" element={<ProductList />} />
+          <Route path="/menu/categories" element={<CategoriesList />} />
           <Route path="/warehouses" element={<WarehouseList />} />
           <Route path="/inventory/stock" element={<StockQuery />} />
           <Route path="/inventory/adjustments" element={<AdjustmentsList />} />
@@ -39,7 +39,7 @@ export default function App() {
           <Route path="/purchases" element={<PurchasesList />} />
           <Route path="/purchases/new" element={<PurchaseForm />} />
           <Route path="/admin/users" element={<UsersList />} />
-          <Route path="/admin/companies" element={<CompaniesList />} />
+          <Route path="/admin/restaurants" element={<RestaurantsList />} />
           <Route path="/admin/branches" element={<BranchesList />} />
           <Route path="/admin/roles-permissions" element={<RolesPermissions />} />
           <Route path="/admin/cash-registers" element={<CashRegistersPage />} />

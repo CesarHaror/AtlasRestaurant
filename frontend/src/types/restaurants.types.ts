@@ -39,7 +39,7 @@ export interface UpdateUserDto {
 }
 
 // Company Types
-export interface Company {
+export interface Restaurant {
   id: number;
   businessName: string;
   tradeName?: string;
@@ -97,7 +97,7 @@ export interface Branch {
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
-  company?: Company;
+  company?: Restaurant;
 }
 
 export interface CreateBranchDto {

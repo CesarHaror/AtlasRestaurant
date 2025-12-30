@@ -28,12 +28,12 @@ export default function MainLayout({ children }: Props) {
         {
           key: 'product-list',
           label: 'Productos',
-          onClick: () => navigate('/products'),
+          onClick: () => navigate('/menu'),
         },
         {
           key: 'categories',
           label: 'Categorías',
-          onClick: () => navigate('/products/categories'),
+          onClick: () => navigate('/menu/categories'),
         },
       ],
     },
@@ -105,7 +105,7 @@ export default function MainLayout({ children }: Props) {
         {
           key: 'admin-companies',
           label: 'Empresas',
-          onClick: () => navigate('/admin/companies'),
+          onClick: () => navigate('/admin/restaurants'),
         },
         {
           key: 'admin-branches',

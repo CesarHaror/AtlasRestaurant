@@ -45,7 +45,7 @@ export enum WasteType {
   OTHER = 'OTHER',
 }
 
-export interface Product {
+export interface MenuItem {
   id: string;
   sku: string;
   name: string;
@@ -164,7 +164,7 @@ export interface WasteRecord {
   photoUrl?: string;
   createdAt: string;
   warehouse: Warehouse;
-  product: Product;
+  menuItem: MenuItem;
   lot?: InventoryLot;
   responsibleUser?: any;
 }
@@ -180,7 +180,7 @@ export interface StockInfo {
   lotCount: number;
   earliestExpiry: string | null;
   lots: InventoryLot[];
-  product: Product;
+  menuItem: MenuItem;
   warehouse: Warehouse;
 }
 

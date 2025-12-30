@@ -9,7 +9,7 @@ import type {
   Branch,
   CreateBranchDto,
   UpdateBranchDto,
-} from '../types/admin.types';
+} from '../types/restaurants.types';
 
 const API_BASE = 'http://localhost:3000/api';
 
@@ -51,15 +51,15 @@ export const usersApi = {
 // Companies API
 export const companiesApi = {
   getAll: () =>
-    api.get<Company[]>('/companies'),
+    api.get<Restaurant[]>('/restaurants'),
   getById: (id: number) =>
-    api.get<Company>(`/companies/${id}`),
+    api.get<Restaurant>(`/restaurants/${id}`),
   create: (data: CreateCompanyDto) =>
-    api.post<Company>('/companies', data),
+    api.post<Restaurant>('/restaurants', data),
   update: (id: number, data: UpdateCompanyDto) =>
-    api.patch<Company>(`/companies/${id}`, data),
+    api.patch<Restaurant>(`/restaurants/${id}`, data),
   delete: (id: number) =>
-    api.delete(`/companies/${id}`),
+    api.delete(`/restaurants/${id}`),
 };
 
 // Branches API

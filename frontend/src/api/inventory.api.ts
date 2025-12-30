@@ -22,7 +22,7 @@ export const lotsApi = {
   getAll: (params?: { productId?: number; warehouseId?: number; status?: string; search?: string }) =>
     api.get<InventoryLot[]>('/inventory/lots', { params }),
   create: (data: CreateLotDto) => api.post<InventoryLot>('/inventory/lots', data),
-  getByProduct: (productId: number, warehouseId?: number) =>
+  getByProduct: (menuItemId: number, warehouseId?: number) =>
     api.get<InventoryLot[]>('/inventory/lots/product/' + productId, {
       params: warehouseId ? { warehouseId } : undefined,
     }),
@@ -35,7 +35,7 @@ export const lotsApi = {
 export const movementsApi = {
   create: (data: CreateMovementDto) => api.post<InventoryMovement>('/inventory/movements', data),
   getAll: () => api.get<InventoryMovement[]>('/inventory/movements'),
-  getByProduct: (productId: number) =>
+  getByProduct: (menuItemId: number) =>
     api.get<InventoryMovement[]>('/inventory/movements/product/' + productId),
 };
 
@@ -43,7 +43,7 @@ export const transfersApi = {
   create: (data: any) => api.post('/inventory/transfers', data),
   getAll: (params?: { sourceWarehouseId?: number; destinationWarehouseId?: number; startDate?: Date; endDate?: Date }) =>
     api.get('/inventory/transfers', { params }),
-  getByProduct: (productId: number) =>
+  getByProduct: (menuItemId: number) =>
     api.get('/inventory/transfers/product/' + productId),
 };
 

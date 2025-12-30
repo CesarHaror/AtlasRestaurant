@@ -1,10 +1,10 @@
-export interface Product {
+export interface MenuItem {
   id: number;
   sku: string;
   name: string;
   description?: string;
   categoryId?: number;
-  category?: ProductCategory;
+  category?: MenuItemCategory;
   unitOfMeasureId?: number;
   unitOfMeasure?: UnitOfMeasure;
   price: number;
@@ -31,7 +31,7 @@ export interface Product {
   updatedAt: string;
 }
 
-export interface ProductCategory {
+export interface MenuItemCategory {
   id: number;
   code: string;
   name: string;
@@ -63,7 +63,7 @@ export interface UnitOfMeasure {
   isActive: boolean;
 }
 
-export interface ProductFilters {
+export interface MenuItemFilters {
   page?: number;
   limit?: number;
   search?: string;
@@ -71,8 +71,8 @@ export interface ProductFilters {
   isActive?: boolean;
 }
 
-export interface ProductListResponse {
-  data: Product[];
+export interface MenuItemListResponse {
+  data: MenuItem[];
   total: number;
   page: number;
   limit: number;

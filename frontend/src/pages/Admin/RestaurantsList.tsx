@@ -20,13 +20,13 @@ import {
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
 import { companiesApi } from '../../api/admin.api';
-import type { Company, CreateCompanyDto, UpdateCompanyDto } from '../../types/admin.types';
+import type { Company, CreateCompanyDto, UpdateCompanyDto } from '../../types/restaurants.types';
 import { useDebounce } from '../../hooks/useDebounce';
 
 const { Title } = Typography;
 
 export default function CompaniesList() {
-  const [companies, setCompanies] = useState<Company[]>([]);
+  const [companies, setCompanies] = useState<Restaurant[]>([]);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
   const [formVisible, setFormVisible] = useState(false);
@@ -92,9 +92,9 @@ export default function CompaniesList() {
     }
   }
 
-  function handleEdit(company: Company) {
-    setSelectedCompany(company);
-    form.setFieldsValue(company);
+  function handleEdit(restaurant: Restaurant) {
+    setSelectedCompany(restaurant);
+    form.setFieldsValue(restaurant);
     setFormVisible(true);
   }
 
@@ -104,7 +104,7 @@ export default function CompaniesList() {
     setFormVisible(true);
   }
 
-  const columns: ColumnsType<Company> = [
+  const columns: ColumnsType<Restaurant> = [
     {
       title: 'Nombre de Negocio',
       dataIndex: 'businessName',

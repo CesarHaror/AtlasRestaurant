@@ -24,7 +24,7 @@ import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
 import { usersApi } from '../../api/admin.api';
 import { branchesApi } from '../../api/admin.api';
-import type { User, Branch } from '../../types/admin.types';
+import type { User, Branch } from '../../types/restaurants.types';
 import { useDebounce } from '../../hooks/useDebounce';
 
 const { Title } = Typography;

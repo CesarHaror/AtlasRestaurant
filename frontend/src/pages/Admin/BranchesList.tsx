@@ -22,14 +22,14 @@ import {
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
 import { branchesApi, companiesApi } from '../../api/admin.api';
-import type { Branch, Company, CreateBranchDto, UpdateBranchDto } from '../../types/admin.types';
+import type { Branch, Company, CreateBranchDto, UpdateBranchDto } from '../../types/restaurants.types';
 import { useDebounce } from '../../hooks/useDebounce';
 
 const { Title } = Typography;
 
 export default function BranchesList() {
   const [branches, setBranches] = useState<Branch[]>([]);
-  const [companies, setCompanies] = useState<Company[]>([]);
+  const [companies, setCompanies] = useState<Restaurant[]>([]);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
   const [formVisible, setFormVisible] = useState(false);
@@ -140,7 +140,7 @@ export default function BranchesList() {
       key: 'company',
       width: 150,
       render: (_, record) => {
-        const company = companies.find((c) => c.id === record.companyId);
+        const restaurant = companies.find((c) => c.id === record.companyId);
         return company?.businessName || '-';
       },
     },

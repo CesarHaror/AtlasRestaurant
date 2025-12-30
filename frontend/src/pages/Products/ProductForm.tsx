@@ -13,18 +13,18 @@ import {
   Upload,
 } from 'antd';
 import type { UploadFile, RcFile } from 'antd/es/upload';
-import { productsApi } from '../../api/products.api';
+import { menuApi } from '../../api/menu.api';
 import type {
   Product,
   ProductCategory,
   UnitOfMeasure,
   CreateProductDto,
   UpdateProductDto,
-} from '../../types/product.types';
+} from '../../types/menu.types';
 
 interface Props {
   open: boolean;
-  product: Product | null;
+  menuItem: MenuItem | null;
   onCancel: () => void;
   onSuccess: () => void;
 }
@@ -32,7 +32,7 @@ interface Props {
 export default function ProductForm({ open, product, onCancel, onSuccess }: Props) {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
-  const [categories, setCategories] = useState<ProductCategory[]>([]);
+  const [categories, setCategories] = useState<MenuCategory[]>([]);
   const [units, setUnits] = useState<UnitOfMeasure[]>([]);
   const [mainImageList, setMainImageList] = useState<UploadFile[]>([]);
   const [thumbnailImageList, setThumbnailImageList] = useState<UploadFile[]>([]);
@@ -40,7 +40,7 @@ export default function ProductForm({ open, product, onCancel, onSuccess }: Prop
   useEffect(() => {
     if (open) {
       loadCatalogues();
-      if (product) {
+      if (menuItem) {
         const toNumber = (val: any) => {
           if (val === null || val === undefined || val === '') return undefined;
           const num = typeof val === 'number' ? val : parseFloat(val);
@@ -52,18 +52,18 @@ export default function ProductForm({ open, product, onCancel, onSuccess }: Prop
           description: product.description,
           categoryId: product.categoryId,
           unitOfMeasureId: product.unitOfMeasureId,
-          price: toNumber(product.price),
-          standardCost: toNumber(product.standardCost),
+          price: toNumber(menuItem.price),
+          standardCost: toNumber(menuItem.standardCost),
           barcode: product.barcode,
-          minStockAlert: toNumber(product.minStockAlert),
-          maxStock: toNumber(product.maxStock),
+          minStockAlert: toNumber(menuItem.minStockAlert),
+          maxStock: toNumber(menuItem.maxStock),
           isVariableWeight: product.isVariableWeight,
           trackInventory: product.trackInventory,
           trackLots: product.trackLots,
           trackExpiry: product.trackExpiry,
           requiresRefrigeration: product.requiresRefrigeration,
-          minTemperature: toNumber(product.minTemperature),
-          maxTemperature: toNumber(product.maxTemperature),
+          minTemperature: toNumber(menuItem.minTemperature),
+          maxTemperature: toNumber(menuItem.maxTemperature),
           showInPos: product.showInPos,
         });
       } else {
@@ -77,8 +77,8 @@ export default function ProductForm({ open, product, onCancel, onSuccess }: Prop
   async function loadCatalogues() {
     try {
       const [cats, unts] = await Promise.all([
-        productsApi.getCategories(),
-        productsApi.getUnitsOfMeasure(),
+        menuApi.getCategories(),
+        menuApi.getUnitsOfMeasure(),
       ]);
       setCategories(cats);
       setUnits(unts);
@@ -226,7 +226,7 @@ export default function ProductForm({ open, product, onCancel, onSuccess }: Prop
         return;
       }
 
-      if (product) {
+      if (menuItem) {
         const dto: UpdateProductDto = {
           sku: values.sku,
           name: values.name,
@@ -254,7 +254,7 @@ export default function ProductForm({ open, product, onCancel, onSuccess }: Prop
         console.log('DTO imageUrl exists:', !!dto.imageUrl, 'size:', dto.imageUrl?.length);
         console.log('DTO thumbnailUrl exists:', !!dto.thumbnailUrl, 'size:', dto.thumbnailUrl?.length);
         console.log('Full DTO:', dto);
-        await productsApi.updateProduct(product.id, dto);
+        await menuApi.updateProduct(menuItem.id, dto);
         message.success('Producto actualizado');
       } else {
         const dto: CreateProductDto = {
@@ -283,7 +283,7 @@ export default function ProductForm({ open, product, onCancel, onSuccess }: Prop
         console.log('DTO imageUrl exists:', !!dto.imageUrl, 'size:', dto.imageUrl?.length);
         console.log('DTO thumbnailUrl exists:', !!dto.thumbnailUrl, 'size:', dto.thumbnailUrl?.length);
         console.log('Full DTO:', dto);
-        await productsApi.createProduct(dto);
+        await menuApi.createProduct(dto);
         message.success('Producto creado');
       }
       onSuccess();

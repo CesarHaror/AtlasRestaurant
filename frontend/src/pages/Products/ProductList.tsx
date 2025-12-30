@@ -20,8 +20,8 @@ import {
   ReloadOutlined,
 } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
-import { productsApi } from '../../api/products.api';
-import type { Product, ProductCategory } from '../../types/product.types';
+import { menuApi } from '../../api/menu.api';
+import type { Product, ProductCategory } from '../../types/menu.types';
 import { useDebounce } from '../../hooks/useDebounce';
 import ProductForm from './ProductForm';
 import ProductDetail from './ProductDetail';
@@ -30,8 +30,8 @@ import './Products.css';
 const { Title } = Typography;
 
 export default function ProductList() {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<ProductCategory[]>([]);
+  const [products, setProducts] = useState<MenuItem[]>([]);
+  const [categories, setCategories] = useState<MenuCategory[]>([]);
   const [loading, setLoading] = useState(false);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
@@ -55,7 +55,7 @@ export default function ProductList() {
   async function loadProducts() {
     try {
       setLoading(true);
-      const response = await productsApi.getProducts({
+      const response = await menuApi.getProducts({
         page,
         limit,
         search: debouncedSearch || undefined,
@@ -73,7 +73,7 @@ export default function ProductList() {
 
   async function loadCategories() {
     try {
-      const data = await productsApi.getCategories();
+      const data = await menuApi.getCategories();
       setCategories(data);
     } catch (error) {
       console.error('Error loading categories:', error);
@@ -82,7 +82,7 @@ export default function ProductList() {
 
   async function handleDelete(id: number) {
     try {
-      await productsApi.deleteProduct(id);
+      await menuApi.deleteProduct(id);
       message.success('Producto eliminado');
       loadProducts();
     } catch (error: any) {
@@ -90,13 +90,13 @@ export default function ProductList() {
     }
   }
 
-  function handleEdit(product: Product) {
-    setSelectedProduct(product);
+  function handleEdit(menuItem: MenuItem) {
+    setSelectedProduct(menuItem);
     setFormVisible(true);
   }
 
-  function handleView(product: Product) {
-    setSelectedProduct(product);
+  function handleView(menuItem: MenuItem) {
+    setSelectedProduct(menuItem);
     setDetailVisible(true);
   }
 
@@ -111,7 +111,7 @@ export default function ProductList() {
     loadProducts();
   }
 
-  const columns: ColumnsType<Product> = [
+  const columns: ColumnsType<MenuItem> = [
     {
       title: 'Foto',
       dataIndex: 'thumbnailUrl',

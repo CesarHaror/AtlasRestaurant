@@ -24,8 +24,8 @@ import {
 } from '@ant-design/icons';
 import type { ColumnsType, TablePaginationConfig } from 'antd/es/table';
 import type { RcFile, UploadFile } from 'antd/es/upload';
-import { productsApi } from '../../api/products.api';
-import type { ProductCategory, CreateCategoryDto } from '../../types/product.types';
+import { menuApi } from '../../api/menu.api';
+import type { ProductCategory, CreateCategoryDto } from '../../types/menu.types';
 import { useDebounce } from '../../hooks/useDebounce';
 import './Products.css';
 
@@ -33,7 +33,7 @@ const { Title } = Typography;
 const { TextArea } = Input;
 
 interface CategoriesListState {
-  data: ProductCategory[];
+  data: MenuItemCategory[];
   loading: boolean;
   pagination: TablePaginationConfig;
   searchText: string;
@@ -64,7 +64,7 @@ export default function CategoriesList() {
   const fetchCategories = async () => {
     setState((prev) => ({ ...prev, loading: true }));
     try {
-      const response = await productsApi.getCategories();
+      const response = await menuApi.getCategories();
       console.log('Categorías cargadas:', response);
       const filtered = (response || []).filter(
         (cat) =>
@@ -93,12 +93,12 @@ export default function CategoriesList() {
     setIsModalVisible(true);
   };
 
-  const handleView = (category: ProductCategory) => {
+  const handleView = (category: MenuItemCategory) => {
     setViewingCategory(category);
     setViewDrawerVisible(true);
   };
 
-  const handleEdit = (category: ProductCategory) => {
+  const handleEdit = (category: MenuItemCategory) => {
     setEditingId(category.id);
     form.setFieldsValue({
       code: category.code,
@@ -157,11 +157,11 @@ export default function CategoriesList() {
 
       if (editingId) {
         console.log(`Updating category ${editingId}`);
-        await productsApi.updateCategory(editingId, payload);
+        await menuApi.updateCategory(editingId, payload);
         message.success('Categoría actualizada correctamente');
       } else {
         console.log('Creating new category');
-        await productsApi.createCategory(payload);
+        await menuApi.createCategory(payload);
         message.success('Categoría creada correctamente');
       }
 
@@ -184,7 +184,7 @@ export default function CategoriesList() {
 
   const handleDelete = async (id: number) => {
     try {
-      await productsApi.deleteCategory(id);
+      await menuApi.deleteCategory(id);
       message.success('Categoría eliminada correctamente');
       fetchCategories();
     } catch (error) {
@@ -240,7 +240,7 @@ export default function CategoriesList() {
     }
   };
 
-  const columns: ColumnsType<ProductCategory> = [
+  const columns: ColumnsType<MenuCategory> = [
     {
       title: 'Foto',
       dataIndex: 'thumbnailUrl',

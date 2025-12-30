@@ -4,7 +4,7 @@ import { ReloadOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import './ProductManagementPage.css';
 
-interface Product {
+interface MenuItem {
   id: number;
   name: string;
   sku: string;
@@ -14,7 +14,7 @@ interface Product {
 }
 
 const ProductManagementPage = () => {
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [updating, setUpdating] = useState<number | null>(null);
@@ -25,7 +25,7 @@ const ProductManagementPage = () => {
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
-      const response = await axios.get(`${API_BASE}/products`, {
+      const response = await axios.get(`${API_BASE}/menu`, {
         headers: { Authorization: `Bearer ${token}` },
         params: { limit: 1000 },
       });
@@ -46,12 +46,12 @@ const ProductManagementPage = () => {
     fetchProducts();
   }, []);
 
-  const handleTogglePosVisibility = async (productId: number, currentValue: boolean) => {
+  const handleTogglePosVisibility = async (menuItemId: number, currentValue: boolean) => {
     try {
-      setUpdating(productId);
+      setUpdating(menuItemId);
       const token = localStorage.getItem('token');
       await axios.patch(
-        `${API_BASE}/products/${productId}/toggle-pos-visibility`,
+        `${API_BASE}/menu/${productId}/toggle-pos-visibility`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -116,7 +116,7 @@ const ProductManagementPage = () => {
       dataIndex: 'showInPos',
       key: 'showInPos',
       width: 150,
-      render: (showInPos: boolean, record: Product) => (
+      render: (showInPos: boolean, record: MenuItem) => (
         <Switch
           checked={showInPos}
           onChange={() => handleTogglePosVisibility(record.id, showInPos)}

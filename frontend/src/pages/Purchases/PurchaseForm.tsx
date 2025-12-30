@@ -60,7 +60,7 @@ const PurchaseForm = () => {
   const addItem = () => {
     setItems([
       ...items,
-      { key: Date.now(), productId: null, product: null, quantityOrdered: 1, unitCost: 0, taxRate: 16, discountPercentage: 0 },
+      { key: Date.now(), productId: null, menuItem: null, quantityOrdered: 1, unitCost: 0, taxRate: 16, discountPercentage: 0 },
     ]);
   };
 
@@ -76,7 +76,7 @@ const PurchaseForm = () => {
               ...item,
               [field]: value,
               ...(field === 'productId' && value
-                ? { product: products.find((p) => p.id === value) }
+                ? { menuItem: products.find((p) => p.id === value) }
                 : {}),
             }
           : item

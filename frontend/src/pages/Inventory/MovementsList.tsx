@@ -19,9 +19,9 @@ import {
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
 import { movementsApi, warehousesApi, transfersApi, lotsApi } from '../../api/inventory.api';
-import { productsApi } from '../../api/products.api';
+import { menuApi } from '../../api/menu.api';
 import type { InventoryMovement, MovementType } from '../../types/inventory.types';
-import type { Product } from '../../types/product.types';
+import type { Product } from '../../types/menu.types';
 import { useDebounce } from '../../hooks/useDebounce';
 
 const { Title } = Typography;
@@ -46,7 +46,7 @@ const movementTypeLabels: Record<MovementType, string> = {
 
 export default function MovementsList() {
   const [movements, setMovements] = useState<InventoryMovement[]>([]);
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<MenuItem[]>([]);
   const [warehouses, setWarehouses] = useState<Array<{ id: number; name: string; code: string; isActive: boolean }>>([]);
   const [lots, setLots] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -73,7 +73,7 @@ export default function MovementsList() {
 
   async function loadProducts() {
     try {
-      const response = await productsApi.getProducts({ limit: 500, isActive: true });
+      const response = await menuApi.getProducts({ limit: 500, isActive: true });
       setProducts(response.data);
     } catch (error) {
       console.error('Error loading products:', error);
@@ -97,7 +97,7 @@ export default function MovementsList() {
   async function loadLotsByWarehouse(warehouseId: number, productId: number) {
     try {
       setLotsLoading(true);
-      const response = await lotsApi.getByProduct(productId, warehouseId);
+      const response = await lotsApi.getByProduct(menuItemId, warehouseId);
       const availableLots = (response.data || []).filter((lot: any) => lot.currentQuantity > 0);
       setLots(availableLots);
     } catch (error) {
@@ -394,7 +394,7 @@ export default function MovementsList() {
           >
             <Select 
               placeholder="Selecciona producto"
-              onChange={(productId) => {
+              onChange={(menuItemId) => {
                 if (movementType === 'TRANSFER' && form.getFieldValue('sourceWarehouseId')) {
                   loadLotsByWarehouse(form.getFieldValue('sourceWarehouseId'), productId);
                 }

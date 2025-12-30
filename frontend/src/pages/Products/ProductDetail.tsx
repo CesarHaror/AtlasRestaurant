@@ -1,9 +1,9 @@
 import { Modal, Descriptions, Image, Tag, Divider } from 'antd';
-import type { Product } from '../../types/product.types';
+import type { Product } from '../../types/menu.types';
 
 interface Props {
   open: boolean;
-  product: Product;
+  menuItem: MenuItem;
   onClose: () => void;
 }
 
@@ -132,10 +132,10 @@ export default function ProductDetail({ open, product, onClose }: Props) {
             {product.satUnitKey || '-'}
           </Descriptions.Item>
           <Descriptions.Item label="Fecha de Creación" span={1}>
-            {new Date(product.createdAt).toLocaleDateString('es-MX')}
+            {new Date(menuItem.createdAt).toLocaleDateString('es-MX')}
           </Descriptions.Item>
           <Descriptions.Item label="Última Actualización" span={1}>
-            {new Date(product.updatedAt).toLocaleDateString('es-MX')}
+            {new Date(menuItem.updatedAt).toLocaleDateString('es-MX')}
           </Descriptions.Item>
         </Descriptions>
     </Modal>
