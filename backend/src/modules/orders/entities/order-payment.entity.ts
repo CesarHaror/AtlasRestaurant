@@ -13,9 +13,9 @@ export class OrderPayment {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => Order, (sale) => sale.payments, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Order, (sale) => order.payments, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'sale_id' })
-  sale: Sale;
+  order: Order;
 
   @Column({ name: 'payment_method', length: 20 })
   paymentMethod: string;

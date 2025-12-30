@@ -8,7 +8,7 @@ import {
   Index,
 } from 'typeorm';
 import { Warehouse } from './warehouse.entity';
-import { Product } from '../../menu/entities/menu-item.entity';
+import { MenuItem } from '../../menu/entities/menu-item.entity';
 import { InventoryLot } from './inventory-lot.entity';
 import { User } from '../../users/entities/user.entity';
 
@@ -39,9 +39,9 @@ export class WasteRecord {
   @Column({ name: 'product_id', type: 'integer' })
   productId: number;
 
-  @ManyToOne(() => Product)
+  @ManyToOne(() => MenuItem)
   @JoinColumn({ name: 'product_id' })
-  product: Product;
+  product: MenuItem;
 
   @Column({ name: 'lot_id', type: 'uuid', nullable: true })
   lotId: string;

@@ -8,7 +8,7 @@ import {
   UpdateDateColumn,
   Index,
 } from 'typeorm';
-import { Product } from '../../menu/entities/menu-item.entity';
+import { MenuItem } from '../../menu/entities/menu-item.entity';
 import { Warehouse } from './warehouse.entity';
 import { InventoryLot } from './inventory-lot.entity';
 
@@ -37,9 +37,9 @@ export class InventoryTransfer {
   @Column({ name: 'product_id' })
   productId: number;
 
-  @ManyToOne(() => Product)
+  @ManyToOne(() => MenuItem)
   @JoinColumn({ name: 'product_id' })
-  product: Product;
+  product: MenuItem;
 
   @Column({ name: 'lot_id' })
   lotId: number;

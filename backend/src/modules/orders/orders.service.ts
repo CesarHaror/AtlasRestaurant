@@ -15,7 +15,7 @@ import { MenuItem } from '../menu/entities/menu-item.entity';
 import { InventoryLot, LotStatus } from '../inventory/entities/inventory-lot.entity';
 import { InventoryMovement, MovementType } from '../inventory/entities/inventory-movement.entity';
 import { User } from '../users/entities/user.entity';
-import { CreateOrderDto } from './dto/create-sale.dto';
+import { CreateOrderDto } from './dto/create-order.dto';
 
 interface LotAllocation {
   lotId: string;

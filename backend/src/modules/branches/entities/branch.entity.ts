@@ -19,7 +19,7 @@ export class Branch {
   @Column({ name: 'company_id' })
   companyId: number;
 
-  @ManyToOne(() => Company, (c) => c.branches, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Restaurant, (c) => c.branches, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'company_id' })
   company: Restaurant;
 

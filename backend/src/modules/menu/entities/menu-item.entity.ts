@@ -8,21 +8,21 @@ import {
   UpdateDateColumn,
   DeleteDateColumn,
 } from 'typeorm';
-import { Company } from '../../restaurants/entities/company.entity';
-import { ProductCategory } from './product-category.entity';
+import { Restaurant } from '../../restaurants/entities/restaurant.entity';
+import { MenuCategory } from './menu-category.entity';
 import { UnitOfMeasure } from './unit-of-measure.entity';
 
 @Entity('products')
-export class Product {
+export class MenuItem {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column({ name: 'company_id' })
   companyId: number;
 
-  @ManyToOne(() => Company)
+  @ManyToOne(() => Restaurant)
   @JoinColumn({ name: 'company_id' })
-  company?: Company;
+  restaurant?: Restaurant;
 
   @Column({ length: 255 })
   name: string;
@@ -45,9 +45,9 @@ export class Product {
   @Column({ name: 'category_id', nullable: true })
   categoryId?: number;
 
-  @ManyToOne(() => ProductCategory, { nullable: true })
+  @ManyToOne(() => MenuCategory, { nullable: true })
   @JoinColumn({ name: 'category_id' })
-  category?: ProductCategory;
+  category?: MenuCategory;
 
   @Column({ name: 'unit_of_measure_id', nullable: true })
   unitOfMeasureId?: number;

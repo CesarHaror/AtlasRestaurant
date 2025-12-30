@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
-import { Product } from '../../menu/entities/menu-item.entity';
+import { MenuItem } from '../../menu/entities/menu-item.entity';
 import { Branch } from '../../branches/entities/branch.entity';
 
 @Entity('inventory')
@@ -7,8 +7,8 @@ export class Inventory {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Product, { onDelete: 'CASCADE' })
-  product: Product;
+  @ManyToOne(() => MenuItem, { onDelete: 'CASCADE' })
+  product: MenuItem;
 
   @ManyToOne(() => Branch, { onDelete: 'CASCADE' })
   branch: Branch;

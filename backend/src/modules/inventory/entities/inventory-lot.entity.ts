@@ -9,7 +9,7 @@ import {
   Index,
   OneToMany,
 } from 'typeorm';
-import { Product } from '../../menu/entities/menu-item.entity';
+import { MenuItem } from '../../menu/entities/menu-item.entity';
 import { Warehouse } from './warehouse.entity';
 import { InventoryMovement } from './inventory-movement.entity';
 
@@ -33,9 +33,9 @@ export class InventoryLot {
   @Index()
   productId: number;
 
-  @ManyToOne(() => Product)
+  @ManyToOne(() => MenuItem)
   @JoinColumn({ name: 'product_id' })
-  product: Product;
+  product: MenuItem;
 
   @Column({ name: 'warehouse_id', type: 'integer' })
   @Index()

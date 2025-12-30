@@ -13,7 +13,7 @@ export enum CardType {
   DEBIT = 'DEBIT',
 }
 
-export class CreateSalePaymentDto {
+export class CreateOrderPaymentDto {
   @ApiProperty({
     example: 'CASH',
     enum: PaymentMethod,

@@ -7,10 +7,10 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { Company } from '../../restaurants/entities/company.entity';
+import { Restaurant } from '../../restaurants/entities/company.entity';
 
 @Entity('product_categories')
-export class ProductCategory {
+export class MenuCategory {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -32,9 +32,9 @@ export class ProductCategory {
   @Column({ name: 'thumbnail_url', type: 'text', nullable: true })
   thumbnailUrl?: string;
 
-  @ManyToOne(() => Company, { nullable: true })
+  @ManyToOne(() => Restaurant, { nullable: true })
   @JoinColumn({ name: 'company_id' })
-  company?: Company;
+  restaurant?: Restaurant;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

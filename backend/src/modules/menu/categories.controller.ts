@@ -15,7 +15,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { FileUploadService } from '../../common/services/file-upload.service';
-import { MenuCategory } from './entities/product-category.entity';
+import { MenuCategory } from './entities/menu-category.entity';
 
 @ApiTags('categories')
 @ApiBearerAuth()

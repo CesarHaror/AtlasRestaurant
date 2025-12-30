@@ -7,7 +7,7 @@ import {
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
-export class CreateSaleItemDto {
+export class CreateOrderItemDto {
   @ApiProperty({
     example: '1',
     description: 'ID del producto',

@@ -19,7 +19,7 @@ export enum SaleType {
   CREDIT = 'CREDIT',
 }
 
-export class CreateSaleDto {
+export class CreateOrderDto {
   @ApiProperty({
     example: 'uuid-del-cliente',
     required: false,

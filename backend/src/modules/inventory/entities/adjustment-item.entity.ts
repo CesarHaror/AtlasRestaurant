@@ -7,7 +7,7 @@ import {
   Index,
 } from 'typeorm';
 import { InventoryAdjustment } from './inventory-adjustment.entity';
-import { Product } from '../../menu/entities/menu-item.entity';
+import { MenuItem } from '../../menu/entities/menu-item.entity';
 import { InventoryLot } from './inventory-lot.entity';
 
 @Entity('adjustment_items')
@@ -29,9 +29,9 @@ export class AdjustmentItem {
   @Column({ name: 'product_id', type: 'integer' })
   productId: number;
 
-  @ManyToOne(() => Product)
+  @ManyToOne(() => MenuItem)
   @JoinColumn({ name: 'product_id' })
-  product: Product;
+  product: MenuItem;
 
   @Column({ name: 'lot_id', type: 'uuid' })
   lotId: string;
