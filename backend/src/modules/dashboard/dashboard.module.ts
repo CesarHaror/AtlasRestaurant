@@ -2,11 +2,11 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DashboardService } from './dashboard.service';
 import { DashboardController } from './dashboard.controller';
-import { Product } from '../products/entities/product.entity';
-import { Sale } from '../sales/entities/sale.entity';
+import { Product } from '../menu/entities/menu-item.entity';
+import { Sale } from '../orders/entities/sale.entity';
 import { Purchase } from '../purchases/entities/purchase.entity';
 import { User } from '../users/entities/user.entity';
-import { Company } from '../companies/entities/company.entity';
+import { Restaurant } from '../restaurants/entities/restaurant.entity';
 import { InventoryLot } from '../inventory/entities/inventory-lot.entity';
 
 @Module({

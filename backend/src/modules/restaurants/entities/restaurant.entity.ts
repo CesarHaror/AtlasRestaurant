@@ -4,27 +4,23 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
-  ManyToOne,
   OneToMany,
-  JoinColumn,
 } from 'typeorm';
-import { Restaurant } from '../../restaurants/entities/restaurant.entity';
-import { Inventory } from '../../inventory/entities/inventory.entity';
+import { Branch } from '../../branches/entities/branch.entity';
 
-@Entity('branches')
-export class Branch {
+@Entity('companies')
+export class Restaurant {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ name: 'company_id' })
-  companyId: number;
+  @Column({ name: 'business_name', length: 255 })
+  businessName: string;
 
-  @ManyToOne(() => Company, (c) => c.branches, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'company_id' })
-  company: Restaurant;
+  @Column({ name: 'trade_name', length: 255, nullable: true })
+  tradeName?: string;
 
-  @Column({ length: 255 })
-  name: string;
+  @Column({ length: 13, nullable: true })
+  rfc?: string;
 
   @Column({ length: 255, nullable: true })
   email?: string;
@@ -44,6 +40,9 @@ export class Branch {
   @Column({ length: 20, nullable: true })
   phone?: string;
 
+  @Column({ name: 'tax_regime', length: 20, nullable: true })
+  taxRegime?: string;
+
   @Column({ name: 'is_active', default: true })
   isActive: boolean;
 
@@ -53,6 +52,6 @@ export class Branch {
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 
-  @OneToMany(() => Inventory, (i) => i.branch)
-  inventory?: Inventory[];
+  @OneToMany(() => Branch, (b) => b.company)
+  branches?: Branch[];
 }

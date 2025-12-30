@@ -8,7 +8,7 @@ import {
   UpdateDateColumn,
   Index,
 } from 'typeorm';
-import { Product } from '../../products/entities/product.entity';
+import { Product } from '../../menu/entities/menu-item.entity';
 import { Warehouse } from './warehouse.entity';
 import { InventoryLot } from './inventory-lot.entity';
 

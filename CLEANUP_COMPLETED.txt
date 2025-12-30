@@ -1,0 +1,56 @@
+✅ LIMPIEZA DE BACKEND COMPLETADA
+
+📦 MÓDULOS ELIMINADOS:
+- purchases/ (52K) - Módulo de compras innecesario
+- suppliers/ (28K) - Módulo de proveedores innecesario
+
+📦 MÓDULOS RENOMBRADOS:
+✅ companies/        → restaurants/        (Cambio: Empresa POS → Restaurante)
+✅ products/         → menu/               (Cambio: Productos genéricos → Menú)
+✅ sales/            → orders/             (Cambio: Ventas → Órdenes/Pedidos)
+
+📄 ARCHIVOS RENOMBRADOS - RESTAURANTS:
+✅ companies.service.ts → restaurants.service.ts
+✅ companies.controller.ts → restaurants.controller.ts
+✅ companies.module.ts → restaurants.module.ts
+✅ entities/company.entity.ts → entities/restaurant.entity.ts
+✅ dto/create-company.dto.ts → dto/create-restaurant.dto.ts
+✅ dto/update-company.dto.ts → dto/update-restaurant.dto.ts
+
+📄 ARCHIVOS RENOMBRADOS - MENU:
+✅ products.service.ts → menu.service.ts
+✅ products.controller.ts → menu.controller.ts
+✅ products.module.ts → menu.module.ts
+✅ entities/product.entity.ts → entities/menu-item.entity.ts
+✅ entities/product-category.entity.ts → entities/menu-category.entity.ts
+✅ dto/create-product.dto.ts → dto/create-menu-item.dto.ts
+✅ dto/update-product.dto.ts → dto/update-menu-item.dto.ts
+
+📄 ARCHIVOS RENOMBRADOS - ORDERS:
+✅ sales.controller.ts → orders.controller.ts
+✅ sales.service.ts → orders.service.ts
+✅ sales.module.ts → orders.module.ts
+✅ entities/sale.entity.ts → entities/order.entity.ts
+✅ entities/sale-item.entity.ts → entities/order-item.entity.ts
+✅ entities/sale-payment.entity.ts → entities/order-payment.entity.ts
+
+🔄 CAMBIOS INTERNOS REALIZADOS:
+✅ Clases TypeScript renombradas (Company→Restaurant, Product→MenuItem, Sale→Order)
+✅ Imports actualizados en todos los archivos .ts
+✅ Referencias en app.module.ts actualizadas
+✅ Controllers actualizados con rutas correctas (/restaurants, /menu, /orders)
+✅ DTOs renombrados y referencias actualizadas
+✅ Entidades de TypeORM renombradas
+✅ Services y Controllers con nombres correctos
+✅ Referencias en otros módulos actualizadas (branches, inventory, dashboard, etc.)
+
+📝 PRÓXIMOS PASOS:
+1. Ejecutar: npm install
+2. Ejecutar: npm run build
+3. Corregir cualquier error de TypeScript
+4. Commit: git add -A && git commit -m "refactor: Restructure backend modules for restaurant POS"
+5. Push: git push origin develop
+
+NOTA: Todos los cambios son de refactorización estructural. La funcionalidad
+      permanece igual, solo están renombrados para reflejar el dominio específico
+      de un sistema POS para restaurantes.

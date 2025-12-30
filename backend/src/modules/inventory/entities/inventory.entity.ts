@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
-import { Product } from '../../products/entities/product.entity';
+import { Product } from '../../menu/entities/menu-item.entity';
 import { Branch } from '../../branches/entities/branch.entity';
 
 @Entity('inventory')

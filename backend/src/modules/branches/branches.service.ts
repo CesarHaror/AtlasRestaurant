@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 import { Branch } from './entities/branch.entity';
 import { CreateBranchDto } from './dto/create-branch.dto';
 import { UpdateBranchDto } from './dto/update-branch.dto';
-import { Company } from '../companies/entities/company.entity';
+import { Restaurant } from '../restaurants/entities/restaurant.entity';
 
 @Injectable()
 export class BranchesService {
@@ -12,7 +12,7 @@ export class BranchesService {
     @InjectRepository(Branch)
     private repo: Repository<Branch>,
     @InjectRepository(Company)
-    private companyRepo: Repository<Company>,
+    private companyRepo: Repository<Restaurant>,
   ) {}
 
   async create(dto: CreateBranchDto): Promise<Branch> {

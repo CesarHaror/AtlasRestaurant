@@ -7,7 +7,7 @@ import {
   Index,
 } from 'typeorm';
 import { InventoryAdjustment } from './inventory-adjustment.entity';
-import { Product } from '../../products/entities/product.entity';
+import { Product } from '../../menu/entities/menu-item.entity';
 import { InventoryLot } from './inventory-lot.entity';
 
 @Entity('adjustment_items')

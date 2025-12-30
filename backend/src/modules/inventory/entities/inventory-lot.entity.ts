@@ -9,7 +9,7 @@ import {
   Index,
   OneToMany,
 } from 'typeorm';
-import { Product } from '../../products/entities/product.entity';
+import { Product } from '../../menu/entities/menu-item.entity';
 import { Warehouse } from './warehouse.entity';
 import { InventoryMovement } from './inventory-movement.entity';
 

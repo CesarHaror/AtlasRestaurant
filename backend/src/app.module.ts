@@ -7,12 +7,11 @@ import { AppService } from './app.service';
 import RedisProvider from './redis.provider';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
-import { CompaniesModule } from './modules/companies/companies.module';
+import { RestaurantsModule } from './modules/restaurants/restaurants.module';
 import { BranchesModule } from './modules/branches/branches.module';
-import { ProductsModule } from './modules/products/products.module';
+import { MenuModule } from './modules/menu/menu.module';
 import { InventoryModule } from './modules/inventory/inventory.module';
-import { PurchasesModule } from './modules/purchases/purchases.module';
-import { SalesModule } from './modules/sales/sales.module';
+import { OrdersModule } from './modules/orders/orders.module';
 import { PermissionsModule } from './modules/permissions/permissions.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
 
@@ -32,12 +31,11 @@ import { DashboardModule } from './modules/dashboard/dashboard.module';
     }),
     AuthModule,
     UsersModule,
-    CompaniesModule,
+    RestaurantsModule,
     BranchesModule,
-    ProductsModule,
+    MenuModule,
     InventoryModule,
-    PurchasesModule,
-    SalesModule,
+    OrdersModule,
     PermissionsModule,
     DashboardModule,
   ],
